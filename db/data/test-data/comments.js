@@ -126,3 +126,9 @@ module.exports = [
     created_at: 1595294400000,
   },
 ];
+
+
+
+// const commentTitles = comments.map((comment) => {return comment.article_title})
+
+

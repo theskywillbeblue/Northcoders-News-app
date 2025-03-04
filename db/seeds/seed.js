@@ -1,24 +1,28 @@
 const db = require("../connection")
 const format = require("pg-format");
-const { convertTimestampToDate } = require("./utils");
+const { convertTimestampToDate, articleIdToComments } = require("./utils");
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
              return db.query('DROP TABLE IF EXISTS comments')
   .then(()=>{return db.query('DROP TABLE IF EXISTS articles')})
-  .then(()=>{return db.query('DROP TABLE IF EXISTS users')})
   .then(()=>{return db.query('DROP TABLE IF EXISTS topics')})
-  .then(()=>{return createTopics()})
-  .then(()=>{return insertTopics(topicData)})
+  .then(()=>{return db.query('DROP TABLE IF EXISTS users')})
   .then(()=>{return createUsers()})
   .then(()=>{return insertUsers(userData)})
+  .then(()=>{return createTopics()})
+  .then(()=>{return insertTopics(topicData)})
   .then(()=>{return createArticles()})
   .then(()=>{return insertArticles(articleData)})
-  .then(()=>{return createComments()})
-  .then(()=>{return insertComments(commentData)})
-  
-
+  .then((articleRes) => {
+    return createComments().then(() => {
+      return insertComments(articleRes.rows, commentData);
+    });
+  });
 };
 module.exports = seed;
+
+
+// creations //
 
 function createTopics(){
   return db.query(`CREATE TABLE topics (
@@ -35,15 +39,16 @@ function createUsers(){
     avatar_url VARCHAR(1000)
     )`);
 }
+
 function createArticles(){
   return db.query(`CREATE TABLE articles (
     article_id SERIAL PRIMARY KEY,
+    topic VARCHAR REFERENCES topics(slug),
     title VARCHAR(100),
     body TEXT,
     created_at TIMESTAMP,
     votes INT DEFAULT 0,
     article_img_url VARCHAR(1000) NOT NULL,
-    topic VARCHAR REFERENCES topics(slug),
     author VARCHAR REFERENCES users(username)
     )`);
 }
@@ -58,6 +63,9 @@ function createComments(){
     article_id INT REFERENCES articles(article_id)
     )`);
 }
+
+
+// insertions //
 
 function insertTopics(data){
   const sqlData = data.map((topic) => {
@@ -78,7 +86,7 @@ function insertTopics(data){
 
 function insertUsers(data){
   const sqlData = data.map((user) => {
-    return [user.username, user.user, user.avatar_url];
+    return [user.username, user.name, user.avatar_url];
   })
   const usersInsertQuery = format(
     ` INSERT INTO users
@@ -93,20 +101,18 @@ function insertUsers(data){
   return db.query(usersInsertQuery);
 }
 
-
 function insertArticles(data){
 
   const newData = data.map(object => {return convertTimestampToDate(object)})
 
   const sqlData = newData.map((article) => {
-      return [article.title, article.body, article.created_at, article.votes, article.  article_img_url];
-
+      return [article.title, article.body, article.created_at, article.votes, article.article_img_url, article.author, article.topic];
   })
 
 
   const articlesInsertQuery = format(
     ` INSERT INTO articles
-      (title, body, created_at, votes, article_img_url )
+      (title, body, created_at, votes, article_img_url, author, topic)
       VALUES
       %L
       RETURNING *
@@ -117,17 +123,25 @@ function insertArticles(data){
   return db.query(articlesInsertQuery);
 }
 
+function insertComments(artData, comData){
 
-function insertComments(data){
+  const newData = comData.map(object => {return convertTimestampToDate(object)})
 
-  const newData = data.map(object => {return convertTimestampToDate(object)})
+  const upDatedComments = articleIdToComments(newData, artData)
 
-  const sqlData = newData.map((comment) => {
-    return [comment.body, comment.created_at, comment.votes];
+  const sqlData = upDatedComments.map((comment) => {
+    return [
+      comment.article_id,
+      comment.body,
+      comment.votes,
+      comment.author,
+      comment.created_at
+    ];
   })
+
   const commentsInsertQuery = format(
     ` INSERT INTO comments
-      (body, created_at, votes)
+      (article_id, body, votes, author, created_at)
       VALUES
       %L
       RETURNING *
@@ -137,3 +151,10 @@ function insertComments(data){
 
   return db.query(commentsInsertQuery);
 }
+
+
+
+
+
+
+
