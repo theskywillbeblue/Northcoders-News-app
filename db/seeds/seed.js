@@ -25,7 +25,8 @@ module.exports = seed;
 // creations //
 
 function createTopics(){
-  return db.query(`CREATE TABLE topics (
+  return db.query(
+    `CREATE TABLE topics (
     slug VARCHAR(255) PRIMARY KEY,
     description VARCHAR(255) NOT NULL,
     img_url VARCHAR(1000)
@@ -33,7 +34,8 @@ function createTopics(){
 }
 
 function createUsers(){
-  return db.query(`CREATE TABLE users (
+  return db.query(
+    `CREATE TABLE users (
     username VARCHAR PRIMARY KEY,
     name VARCHAR(100),
     avatar_url VARCHAR(1000)
@@ -41,26 +43,29 @@ function createUsers(){
 }
 
 function createArticles(){
-  return db.query(`CREATE TABLE articles (
+  return db.query(
+    `CREATE TABLE articles (
     article_id SERIAL PRIMARY KEY,
+    title VARCHAR(200),
     topic VARCHAR REFERENCES topics(slug),
-    title VARCHAR(100),
+    author VARCHAR REFERENCES users(username),
     body TEXT,
     created_at TIMESTAMP,
     votes INT DEFAULT 0,
-    article_img_url VARCHAR(1000) NOT NULL,
-    author VARCHAR REFERENCES users(username)
+    article_img_url VARCHAR(1000) NOT NULL
+
     )`);
 }
 
 function createComments(){
-  return db.query(`CREATE TABLE comments (
+  return db.query(
+    `CREATE TABLE comments (
     comment_id SERIAL PRIMARY KEY,
+    article_id INT REFERENCES articles(article_id),
     body TEXT,
     votes INT NOT NULL DEFAULT(0),
-    created_at TIMESTAMP,
     author VARCHAR REFERENCES users(username),
-    article_id INT REFERENCES articles(article_id)
+    created_at TIMESTAMP
     )`);
 }
 

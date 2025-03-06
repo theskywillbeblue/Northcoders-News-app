@@ -1,4 +1,4 @@
-\c nc_news_test
+\c nc_news
 
 -- SELECT * FROM comments;
 -- SELECT * FROM users;
@@ -12,3 +12,6 @@
 -- SELECT article_id FROM comments;
 
 SELECT * FROM topics;
+SELECT * FROM users;
+SELECT * FROM articles;
+SELECT * FROM comments;
