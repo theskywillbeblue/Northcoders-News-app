@@ -3,6 +3,7 @@ const db = require("../db/connection");
 // test imports
 const request = require("supertest");
 const app = require("../app");
+const jestSorted = require("jest-sorted");
 
 // beforeEach & afterAll functions
 const seed = require("../db/seeds/seed");
@@ -76,21 +77,44 @@ describe("GET /api/articles/:article_id", () => {
 				});
 			});
 	});
-  test("404: Responds with an error message if the article does not exist", () => {
+	test("404: Responds with an error message if the article does not exist", () => {
 		return request(app)
 			.get("/api/articles/999999")
 			.expect(404)
 			.then(({ body }) => {
-				expect(body.msg).toBe('article not found')
+				expect(body.msg).toBe("article not found");
 			});
 	});
-  test("400: Responds with an error message if the article_id type is not valid", () => {
+	test("400: Responds with an error message if the article_id type is not valid", () => {
 		return request(app)
 			.get("/api/articles/liverpool")
 			.expect(400)
 			.then(({ body }) => {
-				expect(body.msg).toBe('bad request')
+				expect(body.msg).toBe("bad request");
 			});
 	});
-
+});
+// GET /api/articles
+describe("GET /api/articles", () => {
+	test("200: Responds with an array of article object, each of which has the body ommited and replaced with a comment count (showing the total number of comments for that article) and they are ordered by date decs", () => {
+		return request(app)
+			.get("/api/articles")
+			.expect(200)
+			.then(({ body }) => {
+				const articles = body.articles;
+				expect(articles).toHaveLength(37);
+				articles.forEach((article) => {
+					expect(typeof article.author).toBe("string");
+					expect(typeof article.title).toBe("string");
+					expect(typeof article.article_id).toBe("number");
+					expect(typeof article.topic).toBe("string");
+					expect(typeof article.created_at).toBe("string");
+					expect(typeof article.votes).toBe("number");
+					expect(typeof article.article_img_url).toBe("string");
+					expect(typeof article.comment_count).toBe("number");
+					expect(article).not.toHaveProperty("body");
+				});
+				expect(articles).toBeSortedBy("created_at", { descending: true });
+			});
+	});
 });
