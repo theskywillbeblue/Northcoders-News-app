@@ -25,5 +25,21 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves a single article by article_id",
+    "queries": [],
+    "exampleResponse": {
+      "article":
+        {
+          "title": "22 Amazing open source React projects",
+          "topic": "coding",
+          "author": "happyamy2016",
+          "body": "Body text from the article..",
+          "created_at": "2020-02-29T11:12:00.000Z",
+          "votes": 0,
+          "article_img_url": "https://images.pexels.com/photos/11035471/pexels-photo-11035471.jpeg?w=700&h=700"
+        }
+    }
   }
 }
