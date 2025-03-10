@@ -39,7 +39,6 @@
   },
   "GET /api/articles/:article_id": {
     "description": "serves a single article by article_id",
-    "queries": [],
     "exampleResponse": {
       "article":
         {
@@ -52,5 +51,21 @@
           "article_img_url": "https://images.pexels.com/photos/11035471/pexels-photo-11035471.jpeg?w=700&h=700"
         }
     }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "get all comments for an article",
+    "exampleResponse": {
+      "comments": [
+        {"comment_id": 4,
+        "votes": 1,
+        "created_at": "today",
+        "author": "bill",
+        "body": "Text here from the comment body...",
+        "article_id": 20}
+
+      ]
+    
+
   }
+}
 }

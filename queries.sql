@@ -10,8 +10,8 @@
 -- SELECT * FROM comments WHERE votes >10;
 -- SELECT article_id FROM articles;
 -- SELECT article_id FROM comments;
+--SELECT * FROM topics;
+--SELECT * FROM users;
+--SELECT * FROM articles;
 
-SELECT * FROM topics;
-SELECT * FROM users;
-SELECT * FROM articles;
 SELECT * FROM comments;

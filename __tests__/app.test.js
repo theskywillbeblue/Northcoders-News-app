@@ -7,10 +7,10 @@ const jestSorted = require("jest-sorted");
 
 // beforeEach & afterAll functions
 const seed = require("../db/seeds/seed");
-const data = require("../db/data/development-data");
+const testData = require("../db/data/test-data");
 
 beforeEach(() => {
-	return seed(data);
+	return seed(testData);
 });
 
 afterAll(() => {
@@ -65,16 +65,15 @@ describe("GET /api/articles/:article_id", () => {
 			.expect(200)
 			.then(({ body }) => {
 				expect(body).toMatchObject({
-					article_id: 3,
-					title: "22 Amazing open source React projects",
-					topic: "coding",
-					author: "happyamy2016",
-					body: "This is a collection of open source apps built with React.JS library. In this observation, we compared nearly 800 projects to pick the top 22. (React Native: 11, React: 11). To evaluate the quality, Mybridge AI considered a variety of factors to determine how useful the projects are for programmers. To give you an idea on the quality, the average number of Github stars from the 22 projects was 1,681.",
-					created_at: "2020-02-29T11:12:00.000Z",
-					votes: 0,
-					article_img_url:
-						"https://images.pexels.com/photos/11035471/pexels-photo-11035471.jpeg?w=700&h=700",
-				});
+          article_id: 3,
+          title: 'Eight pug gifs that remind me of mitch',
+          topic: 'mitch',
+          author: 'icellusedkars',
+          body: 'some gifs',
+          created_at: '2020-11-03T09:12:00.000Z',
+          votes: 0,
+          article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+        });
 			});
 	});
 	test("404: Responds with an error message if the article does not exist", () => {
@@ -96,13 +95,13 @@ describe("GET /api/articles/:article_id", () => {
 });
 // GET /api/articles
 describe("GET /api/articles", () => {
-	test("200: Responds with an array of article object, each of which has the body ommited and replaced with a comment count (showing the total number of comments for that article) and they are ordered by date decs", () => {
+	test("200: Responds with an array of article objects, each of which has the body omited and replaced with a comment count (showing the total number of comments for that article) and they are ordered by date decs", () => {
 		return request(app)
 			.get("/api/articles")
 			.expect(200)
 			.then(({ body }) => {
 				const articles = body.articles;
-				expect(articles).toHaveLength(37);
+				expect(articles).toHaveLength(13);
 				articles.forEach((article) => {
 					expect(typeof article.author).toBe("string");
 					expect(typeof article.title).toBe("string");
@@ -115,6 +114,37 @@ describe("GET /api/articles", () => {
 					expect(article).not.toHaveProperty("body");
 				});
 				expect(articles).toBeSortedBy("created_at", { descending: true });
+			});
+	});
+});
+
+// GET /api/articles/:article_id/comments
+describe("GET /api/articles/:article_id/comments", () => {
+	test("200: Responds with an array of comments objects for the given article_id, ordered by the most recent first", () => {
+		return request(app)
+			.get("/api/articles/5/comments")
+			.expect(200)
+			.then(({ body }) => {
+				const comments = body
+				expect(comments).toHaveLength(2);
+				comments.forEach((comment) => {
+          expect(typeof comment.comment_id).toBe("number");
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.created_at).toBe("string");
+					expect(typeof comment.author).toBe("string");
+					expect(typeof comment.body).toBe("string");
+					expect(typeof comment.article_id).toBe("number");
+				});
+				expect(comments).toBeSortedBy("created_at", { descending: true });
+			});
+	});
+  test("404: Responds with an error if no comments are found for that article_id", () => {
+		return request(app)
+			.get("/api/articles/25/comments")
+			.expect(404)
+			.then(({ body }) => {
+				expect(body.msg).toBe('no comments found');
+				
 			});
 	});
 });
