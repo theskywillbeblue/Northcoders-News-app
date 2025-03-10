@@ -3,13 +3,15 @@ const app = express()
 const {handleIncorrectEndpoints, handleServerErrors, handleTypeInputErrors} = require("../northcoders-news-BE/error-handlers")
 const { getEndpoints } = require("./nc-controllers/api.controller");
 const { getTopics } = require("./nc-controllers/topics.controller")
-const { getArticleById } = require("./nc-controllers/articles.controller")
+const { getArticleById, getArticles } = require("./nc-controllers/articles.controller")
 
 // endpoints
 
 app.get("/api", getEndpoints)
 
 app.get("/api/topics", getTopics)
+
+app.get("/api/articles", getArticles)
 
 app.get("/api/articles/:article_id", getArticleById)
 
