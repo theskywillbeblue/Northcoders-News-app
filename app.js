@@ -1,6 +1,15 @@
 const express = require("express");
 const app = express()
-const endpoints = require("./endpoints.json")
+const { getEndpoints } = require("./nc-controllers/api.controller");
+
+// endpoints
+
+app.get("/api", getEndpoints)
+
+
+
+
+// error handling
 
 
 
