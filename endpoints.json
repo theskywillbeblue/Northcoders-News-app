@@ -1,68 +1,82 @@
 {
-  "GET /api": {
-    "description": "serves up a json representation of all the available endpoints of the api"
-  },
-  "GET /api/topics": {
-    "description": "serves an array of all topics",
-    "queries": [],
-    "exampleResponse": {
-      "topics": [{ "slug": "football", "description": "Footie!" }]
-    }
-  },
-  "GET /api/articles": {
-    "description": "serves an array of all articles",
-    "queries": ["author", "topic", "sort_by", "order"],
-    "exampleResponse": {
-      "articles": [
-        {
-          "author": "grumpy19",
-          "title": "Thanksgiving Drinks for Everyone",
-          "article_id": 27,
-          "topic": "cooking",
-          "created_at": "2020-01-24T23:22:00.000Z",
-          "votes": 0,
-          "article_img_url": "https://images.pexels.com/photos/1565982/pexels-photo-1565982.jpeg?w=700&h=700",
-          "comment_count": 13
-        },
-        {
-          "author": "jessjelly",
-          "title": "Twice-Baked Butternut Squash Is the Thanksgiving Side Dish of Your Dreams",
-          "article_id": 30,
-          "topic": "cooking",
-          "created_at": "2020-01-11T20:20:00.000Z",
-          "votes": 0,
-          "article_img_url": "https://images.pexels.com/photos/175753/pexels-photo-175753.jpeg?w=700&h=700",
-          "comment_count": 8
-        }
-      ]
-    }
-  },
-  "GET /api/articles/:article_id": {
-    "description": "serves a single article by article_id",
-    "exampleResponse": {
-      "article":
-        {
-          "title": "22 Amazing open source React projects",
-          "topic": "coding",
-          "author": "happyamy2016",
-          "body": "Body text from the article..",
-          "created_at": "2020-02-29T11:12:00.000Z",
-          "votes": 0,
-          "article_img_url": "https://images.pexels.com/photos/11035471/pexels-photo-11035471.jpeg?w=700&h=700"
-        }
-    }
-  },
-  "GET /api/articles/:article_id/comments": {
-    "description": "get all comments for an article",
-    "exampleResponse": {
-      "comments": [
-        {"comment_id": 15,
-        "votes": 1,
-        "created_at": "2020-11-24T00:08:00.000Z",
-        "author": "butter_bridge",
-        "body": "I am 100% sure that we're not completely sure.",
-        "article_id": 5}
-      ]
-  }
-}
+	"GET /api": {
+		"description": "serves up a json representation of all the available endpoints of the api"
+	},
+	"GET /api/topics": {
+		"description": "serves an array of all topics",
+		"queries": [],
+		"exampleResponse": {
+			"topics": [{ "slug": "football", "description": "Footie!" }]
+		}
+	},
+	"GET /api/articles": {
+		"description": "serves an array of all articles",
+		"queries": ["author", "topic", "sort_by", "order"],
+		"exampleResponse": {
+			"articles": [
+				{
+					"author": "grumpy19",
+					"title": "Thanksgiving Drinks for Everyone",
+					"article_id": 27,
+					"topic": "cooking",
+					"created_at": "2020-01-24T23:22:00.000Z",
+					"votes": 0,
+					"article_img_url": "https://images.pexels.com/photos/1565982/pexels-photo-1565982.jpeg?w=700&h=700",
+					"comment_count": 13
+				},
+				{
+					"author": "jessjelly",
+					"title": "Twice-Baked Butternut Squash Is the Thanksgiving Side Dish of Your Dreams",
+					"article_id": 30,
+					"topic": "cooking",
+					"created_at": "2020-01-11T20:20:00.000Z",
+					"votes": 0,
+					"article_img_url": "https://images.pexels.com/photos/175753/pexels-photo-175753.jpeg?w=700&h=700",
+					"comment_count": 8
+				}
+			]
+		}
+	},
+	"GET /api/articles/:article_id": {
+		"description": "serves a single article by article_id",
+		"exampleResponse": {
+			"article": {
+				"title": "22 Amazing open source React projects",
+				"topic": "coding",
+				"author": "happyamy2016",
+				"body": "Body text from the article..",
+				"created_at": "2020-02-29T11:12:00.000Z",
+				"votes": 0,
+				"article_img_url": "https://images.pexels.com/photos/11035471/pexels-photo-11035471.jpeg?w=700&h=700"
+			}
+		}
+	},
+	"GET /api/articles/:article_id/comments": {
+		"description": "get all comments for an article",
+		"exampleResponse": {
+			"comments": [
+				{
+					"comment_id": 15,
+					"votes": 1,
+					"created_at": "2020-11-24T00:08:00.000Z",
+					"author": "butter_bridge",
+					"body": "I am 100% sure that we're not completely sure.",
+					"article_id": 5
+				}
+			]
+		}
+	},
+	"POST /api/articles/:article_id/comments": {
+		"description": "post a comment to an article",
+		"exampleResponse": {
+			"comment": {
+				"comment_id": 15,
+				"votes": 0,
+				"created_at": "2025-03-11T00:08:00.000Z",
+				"author": "butter_bridge",
+				"body": "I am 100% sure that we're not completely sure.",
+				"article_id": 5
+			}
+		}
+	}
 }
