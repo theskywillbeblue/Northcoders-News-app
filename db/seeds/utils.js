@@ -27,13 +27,13 @@ exports.checkExists = (table, column, input) => {
 		FROM %I
 		WHERE %I = $1`,
 		table,
-		column)
-	return db.query(query, [input])
-	.then(({ rows }) => {
-		if (rows.length === 0) {
-			return Promise.reject({ status: 404, msg: "Resource not found"})
-		}
-		return true
-	})
+		column
+	);
 
+	return db.query(query, [input]).then(({ rows }) => {
+		if (rows.length === 0) {
+			throw { status: 404, msg: "Not found in database" };
+		}
+		return true;
+	});
 };

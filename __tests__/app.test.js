@@ -3,7 +3,6 @@ const db = require("../db/connection");
 // test imports
 const request = require("supertest");
 const app = require("../app");
-const jestSorted = require("jest-sorted");
 
 // beforeEach & afterAll functions
 const seed = require("../db/seeds/seed");
@@ -65,15 +64,16 @@ describe("GET /api/articles/:article_id", () => {
 			.expect(200)
 			.then(({ body }) => {
 				expect(body).toMatchObject({
-          article_id: 3,
-          title: 'Eight pug gifs that remind me of mitch',
-          topic: 'mitch',
-          author: 'icellusedkars',
-          body: 'some gifs',
-          created_at: '2020-11-03T09:12:00.000Z',
-          votes: 0,
-          article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
-        });
+					article_id: 3,
+					title: "Eight pug gifs that remind me of mitch",
+					topic: "mitch",
+					author: "icellusedkars",
+					body: "some gifs",
+					created_at: "2020-11-03T09:12:00.000Z",
+					votes: 0,
+					article_img_url:
+						"https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+				});
 			});
 	});
 	test("404: Responds with an error message if the article does not exist", () => {
@@ -125,12 +125,12 @@ describe("GET /api/articles/:article_id/comments", () => {
 			.get("/api/articles/5/comments")
 			.expect(200)
 			.then(({ body }) => {
-				const comments = body.comments
+				const comments = body.comments;
 				expect(comments).toHaveLength(2);
 				comments.forEach((comment) => {
-          expect(typeof comment.comment_id).toBe("number");
-          expect(typeof comment.votes).toBe("number");
-          expect(typeof comment.created_at).toBe("string");
+					expect(typeof comment.comment_id).toBe("number");
+					expect(typeof comment.votes).toBe("number");
+					expect(typeof comment.created_at).toBe("string");
 					expect(typeof comment.author).toBe("string");
 					expect(typeof comment.body).toBe("string");
 					expect(comment.article_id).toBe(5);
@@ -138,7 +138,7 @@ describe("GET /api/articles/:article_id/comments", () => {
 				expect(comments).toBeSortedBy("created_at", { descending: true });
 			});
 	});
-  test("200: Responds with an empty array if NO comments are found for a GENUINE article Id", () => {
+	test("200: Responds with an empty array if NO comments are found for a GENUINE article Id", () => {
 		return request(app)
 			.get("/api/articles/2/comments")
 			.expect(200)
@@ -146,20 +146,86 @@ describe("GET /api/articles/:article_id/comments", () => {
 				expect(body.comments).toEqual([]);
 			});
 	});
-  test("400: Responds with an error if the article_id is given in an incorrect format", () => {
+	test("400: Responds with an error if the article_id is given in an incorrect format", () => {
 		return request(app)
 			.get("/api/articles/not-a-number/comments")
 			.expect(400)
 			.then(({ body }) => {
-				expect(body.msg).toBe('bad request');
+				expect(body.msg).toBe("bad request");
 			});
 	});
-  test("404: Responds with an error message if the article_id does not exist", () => {
+	test("404: Responds with an error message if the article_id does not exist", () => {
 		return request(app)
 			.get("/api/articles/999999/comments")
 			.expect(404)
 			.then(({ body }) => {
-				expect(body.msg).toBe("Resource not found");
+				expect(body.msg).toBe("Not found in database");
+			});
+	});
+});
+
+// Q6
+describe.only("POST /api/articles/:article_id/comments", () => {
+	test("201: Responds with the posted comment", () => {
+		return request(app)
+			.post("/api/articles/3/comments")
+			.send({
+				username: "rogersop",
+				body: "Liverpool are going to win the league!",
+			})
+			.expect(201)
+			.then(({ body }) => {
+				expect(body.comment).toEqual(
+					expect.objectContaining({
+						author: expect.any(String),
+						created_at: expect.any(String),
+					})
+				);
+				expect(body.comment.comment_id).toBe(19);
+				expect(body.comment.votes).toBe(0);
+				expect(body.comment.article_id).toBe(3);
+			});
+	});
+	test("404: Responds with an error if article_id does not exist", () => {
+		return request(app)
+			.post("/api/articles/999999/comments")
+			.send({
+				username: "rogersop",
+				body: "Liverpool are going to win the league!",
+			})
+			.expect(404)
+			.then(({ body }) => {
+				expect(body.msg).toBe("Not found in database");
+			});
+	});
+	test("400: Responds with an error if username is missing in the post", () => {
+		return request(app)
+			.post("/api/articles/4/comments")
+			.send({ body: "Liverpool are going to win the league!" })
+			.expect(400)
+			.then(({ body }) => {
+				expect(body.msg).toBe("Missing username");
+			});
+	});
+	test("400: Responds with an error if body is missing in the post", () => {
+		return request(app)
+			.post("/api/articles/1/comments")
+			.send({ username: "rogersop" })
+			.expect(400)
+			.then(({ body }) => {
+				expect(body.msg).toBe("Missing body");
+			});
+	});
+	test("404: Responds with an error if user does not exist in the username table", () => {
+		return request(app)
+			.post("/api/articles/7/comments")
+			.send({
+				username: "Diogo Jota",
+				body: "Liverpool are going to win the league!",
+			})
+			.expect(404)
+			.then(({ body }) => {
+				expect(body.msg).toBe("Not found in database");
 			});
 	});
 });

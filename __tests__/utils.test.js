@@ -54,6 +54,7 @@ describe("checkExists util function", () => {
   });
 
   test("Function rejects if resource doesn't exist in the database", () => {
+    console.log('🔶', checkExists("articles", "article_id", 6))
       return checkExists("articles", "article_id", 99999)
       .catch((err) => {
           expect(err.status).toBe(404);

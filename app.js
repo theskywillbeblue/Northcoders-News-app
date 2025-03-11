@@ -1,9 +1,12 @@
 const express = require("express");
 const app = express()
-const {handleIncorrectEndpoints, handleServerErrors, handleTypeInputErrors} = require("../northcoders-news-BE/error-handlers")
+const {handleIncorrectEndpoints, handleServerErrors, handleTypeInputErrors, handleMissingInputs} = require("../northcoders-news-BE/error-handlers")
 const { getEndpoints } = require("./nc-controllers/api.controller");
 const { getTopics } = require("./nc-controllers/topics.controller")
-const { getArticleById, getArticles, getCommentsByArticleId } = require("./nc-controllers/articles.controller")
+const { getArticleById, getArticles, getCommentsByArticleId } = require("./nc-controllers/articles.controller");
+const { postComment } = require("./nc-controllers/comments.controller");
+
+app.use(express.json());
 
 // endpoints
 
@@ -17,9 +20,12 @@ app.get("/api/articles/:article_id", getArticleById)
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId)
 
+app.post("/api/articles/:article_id/comments", postComment)
+
 
 // error handling
 
+app.use(handleMissingInputs)
 app.use(handleTypeInputErrors)
 app.use(handleIncorrectEndpoints)
 app.use(handleServerErrors)
