@@ -1,11 +1,11 @@
-const db = require("../db/connection");
-const format = require("pg-format");
-const { checkExists } = require("../db/seeds/utils");
+const db = require('../db/connection');
+const format = require('pg-format');
+const { checkExists } = require('../db/seeds/utils');
 
 exports.showArticles = () => {
 	return db
 		.query(
-	`SELECT 
+			`SELECT 
         articles.author, 
         articles.title, 
         articles.article_id, 
@@ -24,7 +24,7 @@ exports.showArticles = () => {
 			if (rows.length === 0) {
 				return Promise.reject({
 					status: 404,
-					msg: "no articles found",
+					msg: 'no articles found',
 				});
 			}
 			return rows;
@@ -33,14 +33,17 @@ exports.showArticles = () => {
 
 exports.showArticleById = (article_id) => {
 	return db
-		.query(`SELECT *
+		.query(
+			`SELECT *
             FROM articles
-            WHERE article_id = $1`, [article_id])
+            WHERE article_id = $1`,
+			[article_id]
+		)
 		.then(({ rows }) => {
 			if (rows.length === 0) {
 				return Promise.reject({
 					status: 404,
-					msg: "article not found",
+					msg: 'article not found',
 				});
 			}
 			return rows[0];
@@ -48,19 +51,32 @@ exports.showArticleById = (article_id) => {
 };
 
 exports.showCommentsByArticleId = (artId) => {
-
-    return checkExists("articles", "article_id", artId)
-    .then(() =>{
-        return db.query(
-            `SELECT comment_id, votes, created_at, author, body,article_id
+	return checkExists('articles', 'article_id', artId)
+		.then(() => {
+			return db.query(
+				`SELECT comment_id, votes, created_at, author, body,article_id
             FROM comments
             WHERE article_id = $1
             ORDER BY created_at DESC`,
-            [artId]
-        )
-    })
-    .then(({ rows }) => {
-			return rows;
+				[artId]
+			);
 		})
-}
+		.then(({ rows }) => {
+			return rows;
+		});
+};
 
+exports.updateArticle = async (artId, voteChange) => {
+	try {
+		const { rows } = await db.query(
+			`UPDATE articles
+            SET votes = votes + $1
+            WHERE article_id = $2
+            RETURNING *`,
+			[voteChange, artId]
+		);
+		return rows[0];
+	} catch (err) {
+		console.log(err, 'in the model');
+	}
+};
