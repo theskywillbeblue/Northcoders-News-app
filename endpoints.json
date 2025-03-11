@@ -56,16 +56,13 @@
     "description": "get all comments for an article",
     "exampleResponse": {
       "comments": [
-        {"comment_id": 4,
+        {"comment_id": 15,
         "votes": 1,
-        "created_at": "today",
-        "author": "bill",
-        "body": "Text here from the comment body...",
-        "article_id": 20}
-
+        "created_at": "2020-11-24T00:08:00.000Z",
+        "author": "butter_bridge",
+        "body": "I am 100% sure that we're not completely sure.",
+        "article_id": 5}
       ]
-    
-
   }
 }
 }

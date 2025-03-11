@@ -1,5 +1,6 @@
 const db = require("../db/connection");
-const format = require("pg-format")
+const format = require("pg-format");
+const { checkExists } = require("../db/seeds/utils");
 
 exports.showArticles = () => {
 	return db
@@ -32,7 +33,9 @@ exports.showArticles = () => {
 
 exports.showArticleById = (article_id) => {
 	return db
-		.query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
+		.query(`SELECT *
+            FROM articles
+            WHERE article_id = $1`, [article_id])
 		.then(({ rows }) => {
 			if (rows.length === 0) {
 				return Promise.reject({
@@ -44,16 +47,20 @@ exports.showArticleById = (article_id) => {
 		});
 };
 
-exports.showCommentsByArticleId = (article_id) => {
-	return db
-		.query(`SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`, [article_id])
-		.then(({ rows }) => {
-			if (rows.length === 0) {
-				return Promise.reject({
-					status: 404,
-					msg: "no comments found",
-				});
-			}
+exports.showCommentsByArticleId = (artId) => {
+
+    return checkExists("articles", "article_id", artId)
+    .then(() =>{
+        return db.query(
+            `SELECT comment_id, votes, created_at, author, body,article_id
+            FROM comments
+            WHERE article_id = $1
+            ORDER BY created_at DESC`,
+            [artId]
+        )
+    })
+    .then(({ rows }) => {
 			return rows;
-		});
-};
+		})
+}
+

@@ -6,8 +6,8 @@ const {
 
 exports.getArticles = (req, res, next) => {
 	showArticles()
-		.then((rows) => {
-			res.status(200).send({ articles: rows });
+		.then((articles) => {
+			res.status(200).send({ articles });
 		})
 		.catch((err) => {
 			next(err);
@@ -26,12 +26,17 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getCommentsByArticleId = (req, res, next) => {
-	const { article_id } = req.params;
-	showCommentsByArticleId(article_id)
+	
+    const artId = req.params.article_id;
+    
+    if (!typeof artId === 'number'){
+        return Promise.reject({ status: 400, msg: "Invalid article ID" })
+    } else {
+	showCommentsByArticleId(artId)
 		.then((comments) => {
-			res.status(200).send(comments);
+			res.status(200).send({ comments });
 		})
 		.catch((err) => {
 			next(err);
 		});
-};
+}};
