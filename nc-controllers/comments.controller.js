@@ -6,10 +6,10 @@ exports.postComment = async (req, res, next) => {
 	const { username, body } = req.body;
 
 	if (!username) {
-		next({ status: 400, msg: "Missing username" });
+		return next({ status: 400, msg: "Missing username" });
 	}
 	if (!body) {
-		next({ status: 400, msg: "Missing body" });
+		return next({ status: 400, msg: "Missing body" });
 	}
 
 	try {
