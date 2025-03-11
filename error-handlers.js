@@ -7,7 +7,7 @@ exports.handleTypeInputErrors = (err, req, res, next) => {
 	}
 };
 
-// invalid endpoint
+// Invalid endpoint
 exports.handleIncorrectEndpoints = (err, req, res, next) => {
 	if (err.status === 404) {
 		res.status(err.status).send({ msg: err.msg });
@@ -16,7 +16,7 @@ exports.handleIncorrectEndpoints = (err, req, res, next) => {
 	}
 };
 
-// everything else errors
+// Everything else errors
 exports.handleServerErrors = (err, req, res, next) => {
-	res.status(500).send("We tried everything, and now we are out of ideas!");
+	res.status(500).send("We tried everything, and now we're out of ideas!");
 };

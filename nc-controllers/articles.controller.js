@@ -1,12 +1,13 @@
 const {
 	showArticleById,
 	showArticles,
+    showCommentsByArticleId
 } = require("../nc-models/articles.model");
 
 exports.getArticles = (req, res, next) => {
 	showArticles()
-		.then((rows) => {
-			res.status(200).send({ articles: rows });
+		.then((articles) => {
+			res.status(200).send({ articles });
 		})
 		.catch((err) => {
 			next(err);
@@ -23,3 +24,19 @@ exports.getArticleById = (req, res, next) => {
 			next(err);
 		});
 };
+
+exports.getCommentsByArticleId = (req, res, next) => {
+	
+    const artId = req.params.article_id;
+    
+    if (!typeof artId === 'number'){
+        return Promise.reject({ status: 400, msg: "Invalid article ID" })
+    } else {
+	showCommentsByArticleId(artId)
+		.then((comments) => {
+			res.status(200).send({ comments });
+		})
+		.catch((err) => {
+			next(err);
+		});
+}};

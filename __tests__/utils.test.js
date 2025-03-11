@@ -1,6 +1,13 @@
 const {
-  convertTimestampToDate
+  convertTimestampToDate,
+  checkExists
 } = require("../db/seeds/utils");
+
+const db = require("../db/connection");
+
+afterAll(() => {
+	return db.end();
+});
 
 describe("convertTimestampToDate", () => {
   test("returns a new object", () => {
@@ -38,3 +45,19 @@ describe("convertTimestampToDate", () => {
   });
 });
 
+describe("checkExists util function", () => {
+  test("Function resolves to true if the resource exists in the database", () => {
+      return checkExists("articles", "article_id", 1)
+      .then((res) => {
+          expect(res).toBe(true);
+      });
+  });
+
+  test("Function rejects if resource doesn't exist in the database", () => {
+      return checkExists("articles", "article_id", 99999)
+      .catch((err) => {
+          expect(err.status).toBe(404);
+          expect(err.msg).toBe("Resource not found");
+      });
+  });
+});
