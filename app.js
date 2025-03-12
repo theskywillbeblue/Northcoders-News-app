@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express()
-const {handleIncorrectEndpoints, handleServerErrors, handleTypeInputErrors, handleMissingInputs} = require("../northcoders-news-BE/error-handlers")
+const {handleIncorrectEndpoints, handleServerErrors, handleTypeInputErrors, handleMissingInputs} = require("./error-handlers")
 const { getEndpoints } = require("./nc-controllers/api.controller");
 const { getTopics } = require("./nc-controllers/topics.controller")
 const { getArticleById, getArticles, getCommentsByArticleId, patchArticle } = require("./nc-controllers/articles.controller");
