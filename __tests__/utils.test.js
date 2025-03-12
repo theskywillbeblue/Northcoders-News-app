@@ -57,7 +57,7 @@ describe("checkExists util function", () => {
       return checkExists("articles", "article_id", 99999)
       .catch((err) => {
           expect(err.status).toBe(404);
-          expect(err.msg).toBe("Not found in database");
+          expect(err.msg).toBe("article_id not found in database");
       });
   });
 });

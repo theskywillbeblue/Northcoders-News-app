@@ -4,7 +4,7 @@ const {handleIncorrectEndpoints, handleServerErrors, handleTypeInputErrors, hand
 const { getEndpoints } = require("./nc-controllers/api.controller");
 const { getTopics } = require("./nc-controllers/topics.controller")
 const { getArticleById, getArticles, getCommentsByArticleId, patchArticle } = require("./nc-controllers/articles.controller");
-const { postComment } = require("./nc-controllers/comments.controller");
+const { postComment, deleteComment } = require("./nc-controllers/comments.controller");
 
 app.use(express.json());
 
@@ -23,6 +23,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId)
 app.post("/api/articles/:article_id/comments", postComment)
 
 app.patch("/api/articles/:article_id", patchArticle)
+
+app.delete("/api/comments/:comment_id", deleteComment)
 
 
 // error handling

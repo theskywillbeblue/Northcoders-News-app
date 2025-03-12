@@ -4,6 +4,7 @@ const {
 	showCommentsByArticleId,
 	updateArticle,
 } = require('../nc-models/articles.model');
+const { checkExists } = require('../db/seeds/utils');
 
 exports.getArticles = (req, res, next) => {
 	showArticles()
@@ -19,7 +20,7 @@ exports.getArticleById = (req, res, next) => {
 	const { article_id } = req.params;
 	showArticleById(article_id)
 		.then((article) => {
-			res.status(200).send(article);
+			res.status(200).send({ article });
 		})
 		.catch((err) => {
 			next(err);
@@ -29,17 +30,16 @@ exports.getArticleById = (req, res, next) => {
 exports.getCommentsByArticleId = (req, res, next) => {
 	const artId = req.params.article_id;
 
-	if (!typeof artId === 'number') {
-		return Promise.reject({ status: 400, msg: 'Invalid article ID' });
-	} else {
-		showCommentsByArticleId(artId)
-			.then((comments) => {
-				res.status(200).send({ comments });
-			})
-			.catch((err) => {
-				next(err);
-			});
-	}
+	return checkExists('articles', 'article_id', artId)
+		.then(() => {
+			return showCommentsByArticleId(artId);
+		})
+		.then((comments) => {
+			res.status(200).send({ comments });
+		})
+		.catch((err) => {
+			next(err);
+		});
 };
 
 exports.patchArticle = async (req, res, next) => {
@@ -61,6 +61,7 @@ exports.patchArticle = async (req, res, next) => {
 		}
 		res.status(200).send(article);
 	} catch (err) {
+		console.log('🔶', err);
 		next(err);
 	}
 };
