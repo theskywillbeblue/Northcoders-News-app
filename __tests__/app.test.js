@@ -60,17 +60,17 @@ describe('GET /api/topics', () => {
 describe('GET /api/articles/:article_id', () => {
 	test('200: Responds with an article object, with the corresponding given article_id number', () => {
 		return request(app)
-			.get('/api/articles/3')
+			.get('/api/articles/4')
 			.expect(200)
 			.then(({ body }) => {
 				const article = body.article;
 				expect(article).toMatchObject({
-					article_id: 3,
-					title: 'Eight pug gifs that remind me of mitch',
+					author: 'rogersop',
+					title: 'Student SUES Mitch!',
+					article_id: 4,
+					body: 'We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages',
 					topic: 'mitch',
-					author: 'icellusedkars',
-					body: 'some gifs',
-					created_at: '2020-11-03T09:12:00.000Z',
+					created_at: '2020-05-06T01:14:00.000Z',
 					votes: 0,
 					article_img_url:
 						'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
@@ -96,7 +96,7 @@ describe('GET /api/articles/:article_id', () => {
 });
 // Q4
 describe('GET /api/articles', () => {
-	test('200: Responds with an array of article objects, each of which has the body omited and replaced with a comment count (showing the total number of comments for that article)', () => {
+	test('200: Responds with an array of article objects, each of which has the body omitted and replaced with a comment count (showing the total number of comments for that article)', () => {
 		return request(app)
 			.get('/api/articles')
 			.expect(200)
@@ -320,8 +320,7 @@ describe('DELETE /api/comments/:comment_id', () => {
 		);
 
 		expect(beforeDelete.rows).toHaveLength(1);
-		await request(app).delete('/api/comments/3')
-    .expect(204);
+		await request(app).delete('/api/comments/3').expect(204);
 		const afterDelete = await db.query(
 			`SELECT * FROM comments WHERE comment_id = 3`
 		);
@@ -424,7 +423,7 @@ describe('GET /api/articles/(sorting queries)', () => {
 
 // Q11
 describe('GET /api/articles/(topic query)', () => {
-	test('200: Responds with an array of articles, filtered by topic value in the query, or all articles if omited ', () => {
+	test('200: Responds with an array of articles, filtered by topic value in the query, or all articles if omitted ', () => {
 		return request(app)
 			.get('/api/articles/?topic=mitch')
 			.expect(200)
@@ -434,7 +433,7 @@ describe('GET /api/articles/(topic query)', () => {
 				articles.forEach((article) => {
 					expect(article).toEqual(
 						expect.objectContaining({
-              topic: 'mitch',
+							topic: 'mitch',
 							article_id: expect.any(Number),
 							article_img_url: expect.any(String),
 							author: expect.any(String),
@@ -447,7 +446,7 @@ describe('GET /api/articles/(topic query)', () => {
 				});
 			});
 	});
-  test('200: The array of articles can still be filtered by topic value in the query, but also sorted by the column of choice and in the order specified ', () => {
+	test('200: The array of articles can still be filtered by topic value in the query, but also sorted by the column of choice and in the order specified ', () => {
 		return request(app)
 			.get('/api/articles/?sort_by=author&order=desc&topic=mitch')
 			.expect(200)
@@ -457,7 +456,7 @@ describe('GET /api/articles/(topic query)', () => {
 				articles.forEach((article) => {
 					expect(article).toEqual(
 						expect.objectContaining({
-              topic: 'mitch',
+							topic: 'mitch',
 						})
 					);
 					expect(articles).toBeSortedBy('author', { descending: true });
@@ -470,6 +469,46 @@ describe('GET /api/articles/(topic query)', () => {
 			.expect(404)
 			.then(({ body }) => {
 				expect(body.msg).toBe('no articles found');
+			});
+	});
+});
+
+// Q12
+describe('GET /api/articles/:article_id (comment_count)', () => {
+	test('200: Responds with the given article object which now contains a comment_count property', () => {
+		return request(app)
+			.get('/api/articles/3')
+			.expect(200)
+			.then(({ body }) => {
+				expect(body.article).toEqual(
+					expect.objectContaining({
+						author: expect.any(String),
+						created_at: expect.any(String),
+						body: expect.any(String),
+						votes: 0,
+						article_id: 3,
+						topic: expect.any(String),
+						title: expect.any(String),
+						comment_count: expect.any(Number),
+					})
+				);
+			});
+	});
+	test('200: Responds with correct comment count value', async () => {
+		const commentsQuery = await db.query(
+			'SELECT * FROM comments WHERE article_id = 9'
+		);
+		const totalComments = commentsQuery.rowCount;
+
+		return request(app)
+			.get('/api/articles/9')
+			.expect(200)
+			.then(({ body }) => {
+				expect(body.article).toEqual(
+					expect.objectContaining({
+						comment_count: totalComments,
+					})
+				);
 			});
 	});
 });

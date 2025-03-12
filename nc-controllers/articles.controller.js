@@ -6,6 +6,7 @@ const {
 } = require('../nc-models/articles.model');
 const { checkExists } = require('../db/seeds/utils');
 
+
 exports.getArticles = (req, res, next) => {
 	const { sort_by, order, topic } = req.query;
 
@@ -18,6 +19,7 @@ exports.getArticles = (req, res, next) => {
 		});
 };
 
+
 exports.getArticleById = (req, res, next) => {
 	const { article_id } = req.params;
 	showArticleById(article_id)
@@ -28,6 +30,7 @@ exports.getArticleById = (req, res, next) => {
 			next(err);
 		});
 };
+
 
 exports.getCommentsByArticleId = (req, res, next) => {
 	const artId = req.params.article_id;
@@ -43,6 +46,7 @@ exports.getCommentsByArticleId = (req, res, next) => {
 			next(err);
 		});
 };
+
 
 exports.patchArticle = async (req, res, next) => {
 	const artId = req.params.article_id;
