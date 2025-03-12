@@ -1,8 +1,28 @@
 const db = require('../db/connection');
-const format = require('pg-format');
-const { checkExists } = require('../db/seeds/utils');
 
-exports.showArticles = () => {
+exports.showArticles = (sort_by, order) => {
+	const validColumns = [
+		'author',
+		'title',
+		'article_id',
+		'topic',
+		'created_at',
+		'votes',
+		'comment_count',
+	];
+
+	const validOrders = ['ASC', 'DESC', 'asc', 'desc'];
+
+	sort_by = sort_by || 'created_at';
+	order = order || 'DESC';
+
+	if (!validColumns.includes(sort_by)) {
+		return Promise.reject({ status: 400, msg: 'invalid sort parameter' });
+	}
+	if (!validOrders.includes(order)) {
+		return Promise.reject({ status: 400, msg: 'invalid order parameter' });
+	}
+
 	return db
 		.query(
 			`SELECT 
@@ -18,14 +38,11 @@ exports.showArticles = () => {
     LEFT JOIN comments 
     ON articles.article_id = comments.article_id
     GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC`
+    ORDER BY ${sort_by} ${order}`
 		)
 		.then(({ rows }) => {
 			if (rows.length === 0) {
-				return Promise.reject({
-					status: 404,
-					msg: 'no articles found',
-				});
+				return Promise.reject({ status: 404, msg: 'no articles found' });
 			}
 			return rows;
 		});
