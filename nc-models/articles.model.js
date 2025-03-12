@@ -51,32 +51,26 @@ exports.showArticleById = (article_id) => {
 };
 
 exports.showCommentsByArticleId = (artId) => {
-	return checkExists('articles', 'article_id', artId)
-		.then(() => {
-			return db.query(
-				`SELECT comment_id, votes, created_at, author, body,article_id
+	return db
+		.query(
+			`SELECT comment_id, votes, created_at, author, body,article_id
             FROM comments
             WHERE article_id = $1
             ORDER BY created_at DESC`,
-				[artId]
-			);
-		})
+			[artId]
+		)
 		.then(({ rows }) => {
 			return rows;
 		});
 };
 
 exports.updateArticle = async (artId, voteChange) => {
-	try {
-		const { rows } = await db.query(
-			`UPDATE articles
+	const { rows } = await db.query(
+		`UPDATE articles
             SET votes = votes + $1
             WHERE article_id = $2
             RETURNING *`,
-			[voteChange, artId]
-		);
-		return rows[0];
-	} catch (err) {
-		console.log(err, 'in the model');
-	}
+		[voteChange, artId]
+	);
+	return rows[0];
 };

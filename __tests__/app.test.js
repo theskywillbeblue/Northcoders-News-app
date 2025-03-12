@@ -63,7 +63,8 @@ describe('GET /api/articles/:article_id', () => {
 			.get('/api/articles/3')
 			.expect(200)
 			.then(({ body }) => {
-				expect(body).toMatchObject({
+				const article = body.article;
+				expect(article).toMatchObject({
 					article_id: 3,
 					title: 'Eight pug gifs that remind me of mitch',
 					topic: 'mitch',
@@ -89,7 +90,7 @@ describe('GET /api/articles/:article_id', () => {
 			.get('/api/articles/liverpool')
 			.expect(400)
 			.then(({ body }) => {
-				expect(body.msg).toBe('bad request');
+				expect(body.msg).toBe('incorrect input type');
 			});
 	});
 });
@@ -151,7 +152,7 @@ describe('GET /api/articles/:article_id/comments', () => {
 			.get('/api/articles/not-a-number/comments')
 			.expect(400)
 			.then(({ body }) => {
-				expect(body.msg).toBe('bad request');
+				expect(body.msg).toBe('incorrect input type');
 			});
 	});
 	test('404: Responds with an error message if the article_id does not exist', () => {
@@ -159,7 +160,7 @@ describe('GET /api/articles/:article_id/comments', () => {
 			.get('/api/articles/999999/comments')
 			.expect(404)
 			.then(({ body }) => {
-				expect(body.msg).toBe('Not found in database');
+				expect(body.msg).toBe('article_id not found in database');
 			});
 	});
 });
@@ -179,11 +180,11 @@ describe('POST /api/articles/:article_id/comments', () => {
 					expect.objectContaining({
 						author: expect.any(String),
 						created_at: expect.any(String),
+						comment_id: 19,
+						votes: 0,
+						article_id: 3,
 					})
 				);
-				expect(body.comment.comment_id).toBe(19);
-				expect(body.comment.votes).toBe(0);
-				expect(body.comment.article_id).toBe(3);
 			});
 	});
 	test('404: Responds with an error if article_id does not exist', () => {
@@ -195,7 +196,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 			})
 			.expect(404)
 			.then(({ body }) => {
-				expect(body.msg).toBe('Not found in database');
+				expect(body.msg).toBe('article_id not found in database');
 			});
 	});
 	test('400: Responds with an error if username is missing in the post', () => {
@@ -225,7 +226,19 @@ describe('POST /api/articles/:article_id/comments', () => {
 			})
 			.expect(404)
 			.then(({ body }) => {
-				expect(body.msg).toBe('Not found in database');
+				expect(body.msg).toBe('username not found in database');
+			});
+	});
+	test('400: Responds with an error if an incorrect format is used in the request object', () => {
+		return request(app)
+			.post('/api/articles/1/comments')
+			.send({
+				username: 'rogersop',
+				body: 2212254,
+			})
+			.expect(400)
+			.then(({ body }) => {
+				expect(body.msg).toBe('Invalid format: body');
 			});
 	});
 });
@@ -246,10 +259,10 @@ describe('PATCH /api/articles/:article_id', () => {
 						body: expect.any(String),
 						article_img_url: expect.any(String),
 						topic: expect.any(String),
+						votes: 10,
+						article_id: 3,
 					})
 				);
-				expect(body.votes).toBe(10);
-				expect(body.article_id).toBe(3);
 			});
 	});
 	test('200: Also updates the votes count negatively', () => {
@@ -303,10 +316,42 @@ describe('PATCH /api/articles/:article_id', () => {
 						body: expect.any(String),
 						article_img_url: expect.any(String),
 						topic: expect.any(String),
+						votes: 10,
+						article_id: 3,
 					})
 				);
-				expect(body.votes).toBe(10);
-				expect(body.article_id).toBe(3);
+			});
+	});
+});
+
+// Q8
+describe('DELETE /api/comments/:comment_id', () => {
+	test('204: Deletes the comment with the given comment_id from the database', async () => {
+		const beforeDelete = await db.query(
+			`SELECT * FROM comments WHERE comment_id = 3`
+		);
+
+		expect(beforeDelete.rows).toHaveLength(1);
+		await request(app).delete('/api/comments/3').expect(204);
+		const afterDelete = await db.query(
+			`SELECT * FROM comments WHERE comment_id = 3`
+		);
+		expect(afterDelete.rows).toHaveLength(0);
+	});
+	test('404: Returns an error message when the comment_id does not exist in the database', () => {
+		return request(app)
+			.delete('/api/comments/99999')
+			.expect(404)
+			.then(({ body }) => {
+				expect(body.msg).toBe('comment_id not found in database');
+			});
+	});
+	test('400: Responds with error message if comment_id is in an invalid format', () => {
+		request(app)
+			.delete('/api/comments/word-not-number')
+			.expect(400)
+			.then(({ body }) => {
+				expect(body.msg).toBe('Invalid format: comment_id');
 			});
 	});
 });

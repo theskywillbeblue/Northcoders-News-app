@@ -1,4 +1,4 @@
-const { showTopics } = require("../nc-models/topics.model");
+const { showTopics } = require('../nc-models/topics.model');
 
 exports.getTopics = (req, res, next) => {
 	showTopics()

@@ -1,5 +1,5 @@
-const db = require("../../db/connection");
-const format = require("pg-format");
+const db = require('../../db/connection');
+const format = require('pg-format');
 
 // convert the timestamp in any given data to an accepted format
 exports.convertTimestampToDate = ({ created_at, ...otherProperties }) => {
@@ -32,7 +32,7 @@ exports.checkExists = (table, column, input) => {
 
 	return db.query(query, [input]).then(({ rows }) => {
 		if (rows.length === 0) {
-			throw { status: 404, msg: "Not found in database" };
+			throw { status: 404, msg: `${column} not found in database` };
 		}
 		return true;
 	});

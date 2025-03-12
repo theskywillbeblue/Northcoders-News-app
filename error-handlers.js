@@ -11,7 +11,7 @@ exports.handleMissingInputs = (err, req, res, next) => {
 // Invalid type input
 exports.handleTypeInputErrors = (err, req, res, next) => {
 	if (err.code === "22P02") {
-		res.status(400).send({ msg: "bad request" });
+		res.status(400).send({ msg: "incorrect input type" });
 	} else {
 		next(err);
 	}
