@@ -41,13 +41,15 @@
 		"description": "serves a single article by article_id",
 		"exampleResponse": {
 			"article": {
+				"article_id": 5,
 				"title": "22 Amazing open source React projects",
 				"topic": "coding",
 				"author": "happyamy2016",
 				"body": "Body text from the article..",
 				"created_at": "2020-02-29T11:12:00.000Z",
 				"votes": 0,
-				"article_img_url": "https://images.pexels.com/photos/11035471/pexels-photo-11035471.jpeg?w=700&h=700"
+				"article_img_url": "https://images.pexels.com/photos/11035471/pexels-photo-11035471.jpeg?w=700&h=700",
+				"comment_count": 5
 			}
 		}
 	},
@@ -94,7 +96,7 @@
 		}
 	},
 	"DELETE /api/comments/:comment_id": {
-		"description": "detlet a given comment by comment_id",
+		"description": "delete a given comment by comment_id",
 		"Response": 204
 	},
 	"GET /api/users": {
