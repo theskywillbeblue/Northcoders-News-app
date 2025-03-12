@@ -320,7 +320,8 @@ describe('DELETE /api/comments/:comment_id', () => {
 		);
 
 		expect(beforeDelete.rows).toHaveLength(1);
-		await request(app).delete('/api/comments/3').expect(204);
+		await request(app).delete('/api/comments/3')
+    .expect(204);
 		const afterDelete = await db.query(
 			`SELECT * FROM comments WHERE comment_id = 3`
 		);
@@ -367,7 +368,7 @@ describe('GET /api/users', () => {
 });
 
 // Q10
-describe('GET /api/articles/?sort_by=author&order=asc', () => {
+describe('GET /api/articles/(sorting queries)', () => {
 	test('200: Responds with an array of articles, sorted by column choice, then by asc or decs order by preference', () => {
 		return request(app)
 			.get('/api/articles/?sort_by=author&order=asc')
@@ -403,7 +404,7 @@ describe('GET /api/articles/?sort_by=author&order=asc', () => {
 				});
 			});
 	});
-	test('200: Responds with an error if either sort by query or order by query are invalid', () => {
+	test('400: Responds with an error if either sort by query or order by query are invalid', () => {
 		return request(app)
 			.get('/api/articles/?sort_by=newest&order=desc')
 			.expect(400)
@@ -411,12 +412,64 @@ describe('GET /api/articles/?sort_by=author&order=asc', () => {
 				expect(body.msg).toBe('invalid sort parameter');
 			});
 	});
-	test('200: Responds with an error if either sort by query or order by query are invalid', () => {
+	test('400: Responds with an error if either sort by query or order by query are invalid', () => {
 		return request(app)
 			.get('/api/articles/?sort_by=author&order=misc')
 			.expect(400)
 			.then(({ body }) => {
 				expect(body.msg).toBe('invalid order parameter');
+			});
+	});
+});
+
+// Q11
+describe('GET /api/articles/(topic query)', () => {
+	test('200: Responds with an array of articles, filtered by topic value in the query, or all articles if omited ', () => {
+		return request(app)
+			.get('/api/articles/?topic=mitch')
+			.expect(200)
+			.then(({ body }) => {
+				const articles = body.articles;
+				expect(articles).toHaveLength(12);
+				articles.forEach((article) => {
+					expect(article).toEqual(
+						expect.objectContaining({
+              topic: 'mitch',
+							article_id: expect.any(Number),
+							article_img_url: expect.any(String),
+							author: expect.any(String),
+							title: expect.any(String),
+							votes: expect.any(Number),
+							comment_count: expect.any(Number),
+							created_at: expect.any(String),
+						})
+					);
+				});
+			});
+	});
+  test('200: The array of articles can still be filtered by topic value in the query, but also sorted by the column of choice and in the order specified ', () => {
+		return request(app)
+			.get('/api/articles/?sort_by=author&order=desc&topic=mitch')
+			.expect(200)
+			.then(({ body }) => {
+				const articles = body.articles;
+				expect(articles).toHaveLength(12);
+				articles.forEach((article) => {
+					expect(article).toEqual(
+						expect.objectContaining({
+              topic: 'mitch',
+						})
+					);
+					expect(articles).toBeSortedBy('author', { descending: true });
+				});
+			});
+	});
+	test('400: Responds with an error if topic query word chosen is not a valid topic', () => {
+		return request(app)
+			.get('/api/articles/?topic=cheese')
+			.expect(404)
+			.then(({ body }) => {
+				expect(body.msg).toBe('no articles found');
 			});
 	});
 });
