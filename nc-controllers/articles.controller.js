@@ -7,7 +7,10 @@ const {
 const { checkExists } = require('../db/seeds/utils');
 
 exports.getArticles = (req, res, next) => {
-	showArticles()
+	const { sort_by } = req.query;
+	const { order } = req.query;
+
+	showArticles(sort_by, order)
 		.then((articles) => {
 			res.status(200).send({ articles });
 		})

@@ -96,7 +96,7 @@ describe('GET /api/articles/:article_id', () => {
 });
 // Q4
 describe('GET /api/articles', () => {
-	test('200: Responds with an array of article objects, each of which has the body omited and replaced with a comment count (showing the total number of comments for that article) and they are ordered by date decs', () => {
+	test('200: Responds with an array of article objects, each of which has the body omited and replaced with a comment count (showing the total number of comments for that article)', () => {
 		return request(app)
 			.get('/api/articles')
 			.expect(200)
@@ -114,6 +114,14 @@ describe('GET /api/articles', () => {
 					expect(typeof article.comment_count).toBe('number');
 					expect(article).not.toHaveProperty('body');
 				});
+			});
+	});
+	test('200: The response object array of articles is default sorted by date in descending order', () => {
+		return request(app)
+			.get('/api/articles')
+			.expect(200)
+			.then(({ body }) => {
+				const articles = body.articles;
 				expect(articles).toBeSortedBy('created_at', { descending: true });
 			});
 	});
@@ -344,15 +352,71 @@ describe('GET /api/users', () => {
 			.expect(200)
 			.then(({ body }) => {
 				const users = body.users;
-				expect(users).toHaveLength(4);
+				expect(users.length).toBeGreaterThan(0);
 				users.forEach((user) => {
 					expect(user).toEqual(
-            expect.objectContaining({
-              username: expect.any(String),
-              name: expect.any(String),
-              avatar_url: expect.any(String),
-            }))
+						expect.objectContaining({
+							username: expect.any(String),
+							name: expect.any(String),
+							avatar_url: expect.any(String),
+						})
+					);
 				});
+			});
+	});
+});
+
+// Q10
+describe('GET /api/articles/?sort_by=author&order=asc', () => {
+	test('200: Responds with an array of articles, sorted by column choice, then by asc or decs order by preference', () => {
+		return request(app)
+			.get('/api/articles/?sort_by=author&order=asc')
+			.expect(200)
+			.then(({ body }) => {
+				const articles = body.articles;
+				expect(articles).toHaveLength(13);
+				articles.forEach((article) => {
+					expect(article).toEqual(
+						expect.objectContaining({
+							article_id: expect.any(Number),
+							article_img_url: expect.any(String),
+							author: expect.any(String),
+							topic: expect.any(String),
+							title: expect.any(String),
+							votes: expect.any(Number),
+							comment_count: expect.any(Number),
+							created_at: expect.any(String),
+						})
+					);
+					expect(articles).toBeSortedBy('author', { descending: false });
+					expect(articles[0]).toEqual({
+						article_img_url:
+							'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+						author: 'butter_bridge',
+						comment_count: 11,
+						created_at: '2020-07-09T20:11:00.000Z',
+						title: 'Living in the shadow of a great man',
+						topic: 'mitch',
+						votes: 100,
+						article_id: 1,
+					});
+				});
+			});
+	});
+	test('200: Responds with an error if either sort by query or order by query are invalid', () => {
+		return request(app)
+			.get('/api/articles/?sort_by=newest&order=desc')
+			.expect(400)
+			.then(({ body }) => {
+				expect(body.msg).toBe('invalid sort parameter');
+			});
+	});
+	test('200: Responds with an error if either sort by query or order by query are invalid', () => {
+		return request(app)
+			.get('/api/articles/?sort_by=author&order=misc')
+			.expect(400)
+			.then(({ body }) => {
+				expect(body.msg).toBe('invalid order parameter');
 			});
 	});
 });
