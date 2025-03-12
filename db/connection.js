@@ -15,11 +15,11 @@ const config = {};
 
 if (ENV === "production") {
   config.connectionString = process.env.DATABASE_URL;
-  config.max = 3;
+  config.max = 2;
 }
 
 const db = new Pool(config);
 
 
-module.exports = new Pool(config);
+
 module.exports = db;
