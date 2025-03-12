@@ -5,6 +5,7 @@ const { getEndpoints } = require("./nc-controllers/api.controller");
 const { getTopics } = require("./nc-controllers/topics.controller")
 const { getArticleById, getArticles, getCommentsByArticleId, patchArticle } = require("./nc-controllers/articles.controller");
 const { postComment, deleteComment } = require("./nc-controllers/comments.controller");
+const { getUsers } = require("./nc-controllers/users.controller");
 
 app.use(express.json());
 
@@ -25,6 +26,8 @@ app.post("/api/articles/:article_id/comments", postComment)
 app.patch("/api/articles/:article_id", patchArticle)
 
 app.delete("/api/comments/:comment_id", deleteComment)
+
+app.get("/api/users", getUsers)
 
 
 // error handling

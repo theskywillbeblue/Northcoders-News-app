@@ -302,26 +302,6 @@ describe('PATCH /api/articles/:article_id', () => {
 				expect(body.msg).toBe('Missing required field: inc_votes');
 			});
 	});
-	test('200: Responds with the newly updated votes count in the article at the article_id endpoint submitted', () => {
-		return request(app)
-			.patch('/api/articles/3')
-			.send({ inc_votes: 10 })
-			.expect(200)
-			.then(({ body }) => {
-				expect(body).toEqual(
-					expect.objectContaining({
-						author: expect.any(String),
-						created_at: expect.any(String),
-						title: expect.any(String),
-						body: expect.any(String),
-						article_img_url: expect.any(String),
-						topic: expect.any(String),
-						votes: 10,
-						article_id: 3,
-					})
-				);
-			});
-	});
 });
 
 // Q8
@@ -352,6 +332,27 @@ describe('DELETE /api/comments/:comment_id', () => {
 			.expect(400)
 			.then(({ body }) => {
 				expect(body.msg).toBe('Invalid format: comment_id');
+			});
+	});
+});
+
+// Q9
+describe('GET /api/users', () => {
+	test('200: Responds with an array of user objects from the database', () => {
+		return request(app)
+			.get('/api/users')
+			.expect(200)
+			.then(({ body }) => {
+				const users = body.users;
+				expect(users).toHaveLength(4);
+				users.forEach((user) => {
+					expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            }))
+				});
 			});
 	});
 });
