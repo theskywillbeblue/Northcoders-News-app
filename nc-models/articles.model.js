@@ -1,6 +1,6 @@
 const db = require('../db/connection');
 
-exports.showArticles = (sort_by, order) => {
+exports.showArticles = (sort_by = 'created_at', order = 'DESC', topic) => {
 	const validColumns = [
 		'author',
 		'title',
@@ -13,9 +13,6 @@ exports.showArticles = (sort_by, order) => {
 
 	const validOrders = ['ASC', 'DESC', 'asc', 'desc'];
 
-	sort_by = sort_by || 'created_at';
-	order = order || 'DESC';
-
 	if (!validColumns.includes(sort_by)) {
 		return Promise.reject({ status: 400, msg: 'invalid sort parameter' });
 	}
@@ -23,9 +20,7 @@ exports.showArticles = (sort_by, order) => {
 		return Promise.reject({ status: 400, msg: 'invalid order parameter' });
 	}
 
-	return db
-		.query(
-			`SELECT 
+	let articleQuery = `SELECT 
         articles.author, 
         articles.title, 
         articles.article_id, 
@@ -36,16 +31,23 @@ exports.showArticles = (sort_by, order) => {
         COUNT(comments.comment_id)::INT AS comment_count
     FROM articles
     LEFT JOIN comments 
-    ON articles.article_id = comments.article_id
-    GROUP BY articles.article_id
-    ORDER BY ${sort_by} ${order}`
-		)
-		.then(({ rows }) => {
-			if (rows.length === 0) {
-				return Promise.reject({ status: 404, msg: 'no articles found' });
-			}
-			return rows;
-		});
+    ON articles.article_id = comments.article_id`;
+
+	const queryValues = [];
+
+	if (topic) {
+		queryValues.push(topic);
+		articleQuery += ` WHERE articles.topic = $1`;
+	}
+
+	articleQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
+
+	return db.query(articleQuery, queryValues).then(({ rows }) => {
+		if (rows.length === 0) {
+			return Promise.reject({ status: 404, msg: 'no articles found' });
+		}
+		return rows;
+	});
 };
 
 exports.showArticleById = (article_id) => {
