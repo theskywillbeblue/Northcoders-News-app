@@ -43,7 +43,7 @@ exports.getCommentsByArticleId = (req, res, next) => {
 };
 
 exports.patchArticle = async (req, res, next) => {
-	artId = req.params.article_id;
+	const artId = req.params.article_id;
 	const { inc_votes } = req.body;
 
 	if (!inc_votes) {
@@ -61,7 +61,6 @@ exports.patchArticle = async (req, res, next) => {
 		}
 		res.status(200).send(article);
 	} catch (err) {
-		console.log('🔶', err);
 		next(err);
 	}
 };
