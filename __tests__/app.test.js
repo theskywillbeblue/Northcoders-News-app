@@ -253,13 +253,14 @@ describe('POST /api/articles/:article_id/comments', () => {
 
 // Q7
 describe('PATCH /api/articles/:article_id', () => {
-	test('200: Responds with the correct article with newly updated votes count (positive increment)', () => {
+	test('200: Responds with the correct article with newly updated votes count (testing positive increment)', () => {
 		return request(app)
 			.patch('/api/articles/3')
 			.send({ inc_votes: 10 })
 			.expect(200)
 			.then(({ body }) => {
-				expect(body).toEqual(
+        const article = body.article
+				expect(article).toEqual(
 					expect.objectContaining({
 						author: expect.any(String),
 						created_at: expect.any(String),
@@ -279,8 +280,9 @@ describe('PATCH /api/articles/:article_id', () => {
 			.send({ inc_votes: -10 })
 			.expect(200)
 			.then(({ body }) => {
-				expect(body.votes).toBe(-10);
-				expect(body.article_id).toBe(3);
+        const article = body.article
+				expect(article.votes).toBe(-10);
+				expect(article.article_id).toBe(3);
 			});
 	});
 	test('400: Responds with an error if inc_votes is not a number', () => {
@@ -463,7 +465,7 @@ describe('GET /api/articles/(topic query)', () => {
 				});
 			});
 	});
-	test('400: Responds with an error if topic query word chosen is not a valid topic', () => {
+	test('404: Responds with an error if topic query word chosen is not a valid topic', () => {
 		return request(app)
 			.get('/api/articles/?topic=cheese')
 			.expect(404)
@@ -472,6 +474,7 @@ describe('GET /api/articles/(topic query)', () => {
 			});
 	});
 });
+
 
 // Q12
 describe('GET /api/articles/:article_id (comment_count)', () => {
@@ -512,6 +515,8 @@ describe('GET /api/articles/:article_id (comment_count)', () => {
 			});
 	});
 });
+
+// Q16
 describe('GET /api/users/:username', () => {
 	test('200: Responds with user information belonging to the given username', () => {
 		return request(app)
@@ -535,4 +540,65 @@ describe('GET /api/users/:username', () => {
 			});
 	});
 
+});
+
+// Q17
+describe('PATCH /api/comments/:comment_id', () => {
+	test('200: Responds with the correct comment with newly updated votes count (testing positive increment)', () => {
+		return request(app)
+			.patch('/api/comments/2')
+			.send({ inc_votes: 10 })
+			.expect(200)
+			.then(({ body }) => {
+        const comment = body.comment;
+				expect(comment).toEqual(
+					expect.objectContaining({
+						comment_id: 2,
+						created_at: expect.any(String),
+						body: expect.any(String),
+						article_id: expect.any(Number),
+						author: expect.any(String),
+						votes: 24,
+					})
+				);
+			});
+	});
+	test('200: Also updates the votes count negatively', () => {
+		return request(app)
+			.patch('/api/comments/2')
+			.send({ inc_votes: -10 })
+			.expect(200)
+			.then(({ body }) => {
+        const comment = body.comment 
+				expect(comment.votes).toBe(4);
+				expect(comment.comment_id).toBe(2);
+			});
+	});
+	test('400: Responds with an error if inc_votes is not a number', () => {
+		return request(app)
+			.patch('/api/comments/3')
+			.send({ inc_votes: 'not-a-number' })
+			.expect(400)
+			.then(({ body }) => {
+				expect(body.msg).toBe('Votes need to be a number');
+			});
+	});
+	test('404: Responds with an error if comment_id does not exist in the database', () => {
+		return request(app)
+			.patch('/api/comments/99999')
+			.send({ inc_votes: 10 })
+			.expect(404)
+			.then(({ body }) => {
+				expect(body.msg).toBe('Comment not found');
+			});
+	});
+	test('400: Responds with error when inc_votes is missing i.e. has not been inputted', () => {
+		return request(app)
+			.patch('/api/comments/1')
+			.send({})
+			.expect(400)
+			.then(({ body }) => {
+				expect(body.msg).toBe('Missing required field: inc_votes');
+			});
+	});
 });

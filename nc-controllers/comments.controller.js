@@ -1,5 +1,9 @@
 const { checkExists } = require('../db/seeds/utils');
-const { sendComment, removeComment } = require('../nc-models/comments.model');
+const {
+	sendComment,
+	removeComment,
+	updateCommentVotesById,
+} = require('../nc-models/comments.model');
 
 exports.postComment = async (req, res, next) => {
 	const artId = req.params.article_id;
@@ -38,6 +42,29 @@ exports.deleteComment = async (req, res, next) => {
 		await checkExists('comments', 'comment_id', commentId);
 		await removeComment(commentId);
 		res.status(204).send();
+	} catch (err) {
+		next(err);
+	}
+};
+
+exports.patchCommentVotesById = async (req, res, next) => {
+	commId = req.params.comment_id;
+	const { inc_votes } = req.body;
+
+	if (!inc_votes) {
+		return next({ status: 400, msg: 'Missing required field: inc_votes' });
+	}
+
+	if (typeof inc_votes !== 'number') {
+		return next({ status: 400, msg: 'Votes need to be a number' });
+	}
+
+	try {
+		const comment = await updateCommentVotesById(commId, inc_votes);
+		if (!comment) {
+			return next({ status: 404, msg: 'Comment not found' });
+		}
+		res.status(200).send({ comment });
 	} catch (err) {
 		next(err);
 	}

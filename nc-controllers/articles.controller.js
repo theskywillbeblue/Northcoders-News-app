@@ -60,7 +60,7 @@ exports.patchArticle = async (req, res, next) => {
 		if (!article) {
 			return next({ status: 404, msg: 'Article not found' });
 		}
-		res.status(200).send(article);
+		res.status(200).send({ article });
 	} catch (err) {
 		next(err);
 	}

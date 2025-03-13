@@ -70,6 +70,7 @@
 	},
 	"POST /api/articles/:article_id/comments": {
 		"description": "post a comment to an article",
+		"bodyFormat": { "username": "bigmanting", "body": "so many loud noises that kept me up" },
 		"exampleResponse": {
 			"comment": {
 				"comment_id": 15,
@@ -83,6 +84,7 @@
 	},
 	"PATCH /api/articles/:article_id": {
 		"description": "patch an article by article_id, updating its number of votes",
+		"bodyFormat": { "inc_votes": 1 },
 		"exampleResponse": {
 			"article": {
 				"article_id": 3,
@@ -119,12 +121,25 @@
 	"GET /api/users/:username": {
 		"description": "responds with information for the user at the given username",
 		"exampleResponse": {
-			"user":
-				{
-					"username": "lurker",
-					"name": "Michael Johnston",
-					"avatar_url": "https://www.spaintiestd899998/-we-are-ks??/lash"
-				}
+			"user": {
+				"username": "lurker",
+				"name": "Michael Johnston",
+				"avatar_url": "https://www.spaintiestd899998/-we-are-ks??/lash"
 			}
-}
+		}
+	},
+	"PATCH /api/comments/:comment_id": {
+		"description": "serves an updated comment by comment id",
+		"bodyFormat": { "inc_votes": 1 },
+		"exampleResponse": {
+			"comment": {
+				"comment_id": 19,
+				"body": "This article was brilliant.",
+				"article_id": 2,
+				"author": "rogersop",
+				"votes": 1,
+				"created_at": "2024-01-16T14:34:02.738Z"
+			}
+		}
+	}
 }
