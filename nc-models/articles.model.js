@@ -74,14 +74,14 @@ exports.showArticleById = async (article_id) => {
 };
 
 exports.showCommentsByArticleId = async (artId) => {
-	const { rows } = await db.query(
-		`SELECT *
+	const {rows} = await db.query(
+			`SELECT *
             FROM comments
             WHERE article_id = $1
             ORDER BY created_at DESC`,
-		[artId]
-	);
-	return rows;
+			[artId]
+		)
+			return rows;
 };
 
 exports.updateArticle = async (artId, voteChange) => {
