@@ -32,14 +32,15 @@ app.get("/api/users", getUsers)
 
 // error handling
 
-app.use(handleMissingInputs)
-app.use(handleTypeInputErrors)
-app.use(handleIncorrectEndpoints)
-app.use(handleServerErrors)
 
 app.all("*", (req, res) => {
     res.status(404).send({msg: "invalid endpoint"})
 })
+
+app.use(handleMissingInputs)
+app.use(handleTypeInputErrors)
+app.use(handleIncorrectEndpoints)
+app.use(handleServerErrors)
 
 
 module.exports = app

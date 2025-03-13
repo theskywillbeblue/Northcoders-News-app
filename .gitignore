@@ -2,4 +2,3 @@ node_modules
 .env.*
 queries.sql
 testdatabase.txt
-error-handling.md
