@@ -106,7 +106,7 @@
 				{
 					"author": "grumpy19",
 					"title": "Thanksgiving Drinks for Everyone",
-					"avatar_url": "https://www.snowwhiteandthegrumpiestdwarf/suddenlygotdrinks??"
+					"avatar_url": "https://www.snowwhiteandthegrumpiestdwarf/s7uenlyg8otdr9/in??"
 				},
 				{
 					"username": "jessjelly",
@@ -115,5 +115,16 @@
 				}
 			]
 		}
-	}
+	},
+	"GET /api/users/:username": {
+		"description": "responds with information for the user at the given username",
+		"exampleResponse": {
+			"user":
+				{
+					"username": "lurker",
+					"name": "Michael Johnston",
+					"avatar_url": "https://www.spaintiestd899998/-we-are-ks??/lash"
+				}
+			}
+}
 }

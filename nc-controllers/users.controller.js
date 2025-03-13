@@ -1,4 +1,4 @@
-const { showUsers } = require('../nc-models/users.model');
+const { showUsers, showUserByUsername } = require('../nc-models/users.model');
 
 exports.getUsers = async (req, res, next) => {
 	try {
@@ -8,3 +8,13 @@ exports.getUsers = async (req, res, next) => {
 		next(err);
 	}
 };
+
+exports.getUserByUsername = async (req, res, next) => {
+	try {
+		const { username } = req.params
+		const user = await showUserByUsername(username)
+		res.status(200).send({ user })
+	} catch (err) {
+		next(err);
+	}
+}
