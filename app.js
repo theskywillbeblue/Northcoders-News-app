@@ -1,37 +1,32 @@
 const express = require("express");
-const app = express()
 const {handleIncorrectEndpoints, handleServerErrors, handleTypeInputErrors, handleMissingInputs} = require("./error-handlers")
-const { getEndpoints } = require("./nc-controllers/api.controller");
-const { getTopics } = require("./nc-controllers/topics.controller")
-const { getArticleById, getArticles, getCommentsByArticleId, patchArticle } = require("./nc-controllers/articles.controller");
-const { postComment, deleteComment } = require("./nc-controllers/comments.controller");
-const { getUsers } = require("./nc-controllers/users.controller");
-
+const app = express()
 app.use(express.json());
+
+
+// routers
+
+const apiRouter = require("./routes/api-router")
+const topicsRouter = require("./routes/topics-router")
+const commentsRouter = require("./routes/comments-router")
+const articlesRouter = require("./routes/articles-router");
+const usersRouter = require("./routes/users.router");
+
 
 // endpoints
 
-app.get("/api", getEndpoints)
+app.use("/api", apiRouter)
 
-app.get("/api/topics", getTopics)
+app.use("/api/topics", topicsRouter)
 
-app.get("/api/articles", getArticles)
+app.use("/api/articles", articlesRouter)
 
-app.get("/api/articles/:article_id", getArticleById)
+app.use("/api/comments", commentsRouter)
 
-app.get("/api/articles/:article_id/comments", getCommentsByArticleId)
-
-app.post("/api/articles/:article_id/comments", postComment)
-
-app.patch("/api/articles/:article_id", patchArticle)
-
-app.delete("/api/comments/:comment_id", deleteComment)
-
-app.get("/api/users", getUsers)
+app.use("/api/users", usersRouter)
 
 
 // error handling
-
 
 app.all("*", (req, res) => {
     res.status(404).send({msg: "invalid endpoint"})
