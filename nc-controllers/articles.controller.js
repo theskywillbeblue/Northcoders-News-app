@@ -6,47 +6,42 @@ const {
 } = require('../nc-models/articles.model');
 const { checkExists } = require('../db/seeds/utils');
 
-
-exports.getArticles = (req, res, next) => {
+exports.getArticles = async (req, res, next) => {
 	const { sort_by, order, topic } = req.query;
 
-	showArticles(sort_by, order, topic)
-		.then((articles) => {
-			res.status(200).send({ articles });
-		})
-		.catch((err) => {
-			next(err);
-		});
+	try {
+		const articles = await showArticles(sort_by, order, topic);
+
+		res.status(200).send({ articles });
+	} catch (err) {
+		next(err);
+	}
 };
 
-
-exports.getArticleById = (req, res, next) => {
+exports.getArticleById = async (req, res, next) => {
 	const { article_id } = req.params;
-	showArticleById(article_id)
-		.then((article) => {
-			res.status(200).send({ article });
-		})
-		.catch((err) => {
-			next(err);
-		});
+
+	try {
+		const article = await showArticleById(article_id);
+		res.status(200).send({ article });
+	} catch (err) {
+		next(err);
+	}
 };
 
-
-exports.getCommentsByArticleId = (req, res, next) => {
+exports.getCommentsByArticleId = async (req, res, next) => {
 	const artId = req.params.article_id;
 
-	return checkExists('articles', 'article_id', artId)
-		.then(() => {
-			return showCommentsByArticleId(artId);
-		})
-		.then((comments) => {
-			res.status(200).send({ comments });
-		})
-		.catch((err) => {
-			next(err);
-		});
-};
+	try {
+		await checkExists('articles', 'article_id', artId);
 
+		const comments = await showCommentsByArticleId(artId);
+
+		res.status(200).send({ comments });
+	} catch (err) {
+		next(err);
+	}
+};
 
 exports.patchArticle = async (req, res, next) => {
 	const artId = req.params.article_id;

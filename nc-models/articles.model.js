@@ -1,6 +1,10 @@
 const db = require('../db/connection');
 
-exports.showArticles = (sort_by = 'created_at', order = 'DESC', topic) => {
+exports.showArticles = async (
+	sort_by = 'created_at',
+	order = 'DESC',
+	topic
+) => {
 	const validColumns = [
 		'author',
 		'title',
@@ -42,58 +46,43 @@ exports.showArticles = (sort_by = 'created_at', order = 'DESC', topic) => {
 
 	articleQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
 
-	return db.query(articleQuery, queryValues).then(({ rows }) => {
-		if (rows.length === 0) {
-			return Promise.reject({ status: 404, msg: 'no articles found' });
-		}
-		return rows;
-	});
+	const { rows } = await db.query(articleQuery, queryValues);
+	if (rows.length === 0) {
+		return Promise.reject({ status: 404, msg: 'no articles found' });
+	}
+	return rows;
 };
 
-
-
-exports.showArticleById = (article_id) => {
-
-	return db
-		.query(
-		`SELECT 
-        	articles.*,
-        COUNT(comments.comment_id)::INT AS comment_count
-		FROM articles
-		LEFT JOIN comments 
-		ON articles.article_id = comments.article_id
-		WHERE articles.article_id = $1 
-		GROUP BY articles.article_id`,
-			[article_id]
-		)
-		.then(({ rows }) => {
-			if (rows.length === 0) {
-				return Promise.reject({
-					status: 404,
-					msg: 'article not found',
-				});
-			}
-			return rows[0];
+exports.showArticleById = async (article_id) => {
+	const { rows } = await db.query(
+		`SELECT articles.*,
+			COUNT(comments.comment_id)::INT AS comment_count
+			FROM articles
+			LEFT JOIN comments 
+			ON articles.article_id = comments.article_id
+			WHERE articles.article_id = $1 
+			GROUP BY articles.article_id`,
+		[article_id]
+	);
+	if (rows.length === 0) {
+		return Promise.reject({
+			status: 404,
+			msg: 'article not found',
 		});
+	}
+	return rows[0];
 };
 
-
-
-exports.showCommentsByArticleId = (artId) => {
-	return db
-		.query(
-			`SELECT *
+exports.showCommentsByArticleId = async (artId) => {
+	const { rows } = await db.query(
+		`SELECT *
             FROM comments
             WHERE article_id = $1
             ORDER BY created_at DESC`,
-			[artId]
-		)
-		.then(({ rows }) => {
-			return rows;
-		});
+		[artId]
+	);
+	return rows;
 };
-
-
 
 exports.updateArticle = async (artId, voteChange) => {
 	const { rows } = await db.query(
