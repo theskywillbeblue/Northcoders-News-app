@@ -56,6 +56,7 @@ describe('GET /api/topics', () => {
 			});
 	});
 });
+
 // Q3
 describe('GET /api/articles/:article_id', () => {
 	test('200: Responds with an article object, with the corresponding given article_id number', () => {
@@ -94,6 +95,7 @@ describe('GET /api/articles/:article_id', () => {
 			});
 	});
 });
+
 // Q4
 describe('GET /api/articles', () => {
 	test('200: Responds with an array of article objects, each of which has the body omitted and replaced with a comment count (showing the total number of comments for that article)', () => {
@@ -746,6 +748,38 @@ describe('POST /api/topics', () => {
 			.expect(409)
 			.then(({ body }) => {
 				expect(body.msg).toBe('slug already exists in database');
+			});
+	});
+});
+
+// Q22
+describe('DELETE /api/articles/:article_id', () => {
+	test('204: Deletes the article with the given article_id from the database', async () => {
+    
+    const beforeDelete = await db.query(
+			`SELECT * FROM articles WHERE article_id = 3`);
+
+		expect(beforeDelete.rows).toHaveLength(1);
+		await request(app).delete('/api/articles/3').expect(204);
+		const afterDelete = await db.query(
+			`SELECT * FROM articles WHERE article_id = 3`
+		);
+		expect(afterDelete.rows).toHaveLength(0);
+	});
+	test('404: Returns an error message when the article_id does not exist in the database', () => {
+		return request(app)
+			.delete('/api/articles/99999')
+			.expect(404)
+			.then(({ body }) => {
+				expect(body.msg).toBe('article_id not found in database');
+			});
+	});
+	test('400: Responds with error message if article_id is in an invalid format', () => {
+		request(app)
+			.delete('/api/articles/word-not-number')
+			.expect(400)
+			.then(({ body }) => {
+				expect(body.msg).toBe('Invalid format: article_id');
 			});
 	});
 });

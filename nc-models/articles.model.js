@@ -135,3 +135,22 @@ exports.createArticle = async (article) => {
 	);
 	return rows[0];
 };
+
+
+
+
+exports.removeArticle = async (artId) => {
+
+	// necessary to delete all comments for the article that is then to be deleted
+	await db.query(
+		`DELETE FROM comments
+			WHERE article_id = $1`,
+		[artId]
+	);
+	const { rows } = await db.query(
+		`DELETE FROM articles
+			WHERE article_id = $1`,
+		[artId]
+	);
+	return rows;
+};

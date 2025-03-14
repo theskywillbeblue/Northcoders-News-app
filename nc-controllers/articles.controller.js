@@ -4,6 +4,7 @@ const {
 	showCommentsByArticleId,
 	updateArticle,
 	createArticle,
+	removeArticle
 } = require('../nc-models/articles.model');
 const { checkExists } = require('../db/seeds/utils');
 
@@ -90,6 +91,25 @@ exports.postArticle = async (req, res, next) => {
 		const newArticle = await createArticle(article);
 		res.status(201).send({ newArticle });
 	} catch (err) {
+		next(err);
+	}
+};
+
+
+
+exports.deleteArticle = async (req, res, next) => {
+	const artId = req.params.article_id;
+
+	if (isNaN(artId)) {
+		return next({ status: 400, msg: 'Invalid format: article_id' });
+	}
+
+	try {
+		await checkExists('articles', 'article_id', artId);
+		await removeArticle(artId);
+		res.status(204).send();
+	} catch (err) {
+		console.log('🔶',err);
 		next(err);
 	}
 };
