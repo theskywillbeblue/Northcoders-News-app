@@ -3,6 +3,7 @@ const {
 	showArticles,
 	showCommentsByArticleId,
 	updateArticle,
+	createArticle,
 } = require('../nc-models/articles.model');
 const { checkExists } = require('../db/seeds/utils');
 
@@ -10,6 +11,10 @@ exports.getArticles = async (req, res, next) => {
 	const { sort_by, order, topic } = req.query;
 
 	try {
+		if (topic) {
+			await checkExists('topics', 'slug', topic);
+		}
+
 		const articles = await showArticles(sort_by, order, topic);
 
 		res.status(200).send({ articles });
@@ -61,6 +66,29 @@ exports.patchArticle = async (req, res, next) => {
 			return next({ status: 404, msg: 'Article not found' });
 		}
 		res.status(200).send({ article });
+	} catch (err) {
+		next(err);
+	}
+};
+
+exports.postArticle = async (req, res, next) => {
+	const article = req.body;
+	const { topic } = article;
+	const { author } = article;
+
+	if (!topic) {
+		return next({ status: 400, msg: 'Missing required field: topic' });
+	}
+	if (!author) {
+		return next({ status: 400, msg: 'Missing required field: author' });
+	}
+
+	try {
+		await checkExists('topics', 'slug', topic);
+		await checkExists('users', 'username', author);
+
+		const newArticle = await createArticle(article);
+		res.status(201).send({ newArticle });
 	} catch (err) {
 		next(err);
 	}
