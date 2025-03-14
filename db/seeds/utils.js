@@ -37,3 +37,20 @@ exports.checkExists = (table, column, input) => {
 		return true;
 	});
 };
+
+// check if something already exists in the database
+exports.checkDoesNotExist = async (table, column, input) => {
+	const query = format(
+		`SELECT *
+		FROM %I
+		WHERE %I = $1`,
+		table,
+		column
+	);
+		const { rows } = await db.query(query, [input]);
+
+		if (rows.length > 0) {
+			throw { status: 409, msg: `${column} already exists in database` };
+		}
+		return true;
+};

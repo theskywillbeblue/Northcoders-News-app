@@ -1,10 +1,11 @@
 const topicsRouter = require("express").Router();
-const { getTopics } = require("../nc-controllers/topics.controller")
+const { getTopics, postTopic } = require("../nc-controllers/topics.controller")
 
 
 topicsRouter
 .route("/")
-.get(getTopics);
+.get(getTopics)
+.post(postTopic)
 
 
 module.exports = topicsRouter;

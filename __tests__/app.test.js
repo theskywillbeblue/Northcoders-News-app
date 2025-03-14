@@ -695,3 +695,57 @@ describe('POST /api/articles', () => {
 			});
 	});
 });
+
+// // Q19 - not yet implemented
+// describe('GET: api/articles', () => {
+// test.only('200: Responds with all articles, but paginated according to the inputs', () => {
+//   return request(app)
+//     .get('/api/articles/?p=1&limit=3')
+//     .expect(200)
+//     .then(({ body }) =>{
+//       const {articles} = body
+//       expect(articles).toHaveLength(3)
+//     })
+// })
+// })
+
+// Q20
+describe('POST /api/topics', () => {
+	test('201: Responds with the newly posted topic', () => {
+		return request(app)
+			.post('/api/topics/')
+			.send({
+				slug: 'traveling',
+				description: 'All things get up and go!',
+			})
+			.expect(201)
+			.then(({ body }) => {
+				const { topic } = body;
+				expect(topic).toMatchObject({
+					slug: 'traveling',
+					description: 'All things get up and go!',
+				});
+			});
+	});
+	test('400: Responds with an error if the posted topic does not include a description', () => {
+		return request(app)
+			.post('/api/topics/')
+			.send({
+				slug: 'work',
+			})
+			.expect(400)
+			.then(({ body }) => {
+				expect(body.msg).toBe('Missing required field: description');
+			});
+	});
+
+	test('409: Responds with an error if the topic already exists in the topics table', () => {
+		return request(app)
+			.post('/api/topics')
+			.send({ slug: 'cats', description: 'just a lot of scratching' })
+			.expect(409)
+			.then(({ body }) => {
+				expect(body.msg).toBe('slug already exists in database');
+			});
+	});
+});

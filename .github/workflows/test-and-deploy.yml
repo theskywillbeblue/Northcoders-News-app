@@ -1,64 +1,39 @@
-name: Test & Deploy
-run-name: Testing app
+name: Test and Deploy
+
 on:
-  pull_request:
+  push:
     branches:
       - main
+
 jobs:
-  test-utils:
+  greeting:
+    name: Intro
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
+      - name: intro
+        run: echo "This is the Test and Deploy script..."
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: install dependencies
-        run: npm install
-
-      - name: run utils tests
-        run: npm run test-utils
-
-  test-api:
-    needs: test-utils
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set Timezone Action
-        uses: szenius/set-timezone@v1.2
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
-          timezoneLinux: 'Europe/London'
+          node-version: 18
 
-      - name: Checkout Repo
-        uses: actions/checkout@v3
-
-      - name: install dependencies
-        run: npm install
-
-      - name: setup postgresql
+      - name: Setup PostgreSQL
         uses: harmon758/postgresql-action@v1
         with:
-          postgresql db: my_test_db
-          postgresql user: test_user
-          postgresql password: test_password
-
-      - name: Check Time Zone
-        run: date && ls -l /etc/localtime
-
-      - name: run app tests
-        run: PGDATABASE=my_test_db PGUSER=test_user PGPASSWORD=test_password npm run app-test
-
-  test-api-with-live-db:
-    needs: test-api
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set Timezone Action
-        uses: szenius/set-timezone@v1.2
-        with:
-          timezoneLinux: 'Europe/London'
-
-      - name: Checkout Repo
-        uses: actions/checkout@v3
+          postgresql db: nc_news_test
+          postgresql user: test-user
+          postgresql password: testuserpassword
 
       - name: install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: run app tests on live db
-        run: NODE_ENV=production DATABASE_URL=${{secrets.DATABASE_URL}} npm run app-test
+      - name: Run tests
+        run: PGDATABASE=nc_news_test PGUSER=test-user PGPASSWORD=testuserpassword npm t

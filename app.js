@@ -1,5 +1,5 @@
 const express = require("express");
-const {handleIncorrectEndpoints, handleServerErrors, handleTypeInputErrors, handleMissingInputs} = require("./error-handlers")
+const {handleIncorrectEndpoints, handleServerErrors, handleTypeInputErrors, handleMissingInputs, alreadyExistsErrors} = require("./error-handlers")
 const app = express()
 app.use(express.json());
 
@@ -34,6 +34,7 @@ app.all("*", (req, res) => {
 
 app.use(handleMissingInputs)
 app.use(handleTypeInputErrors)
+app.use(alreadyExistsErrors)
 app.use(handleIncorrectEndpoints)
 app.use(handleServerErrors)
 

@@ -47,12 +47,17 @@ exports.showArticles = async (
 
 	articleQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
 
+
 	const { rows } = await db.query(articleQuery, queryValues);
 	if (rows.length === 0 && (await !checkExists('topics', 'slug', topic))) {
 		return Promise.reject({ status: 404, msg: 'no articles found' });
 	}
 	return rows;
 };
+
+
+
+
 
 exports.showArticleById = async (article_id) => {
 	const { rows } = await db.query(

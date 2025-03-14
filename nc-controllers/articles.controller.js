@@ -8,7 +8,7 @@ const {
 const { checkExists } = require('../db/seeds/utils');
 
 exports.getArticles = async (req, res, next) => {
-	const { sort_by, order, topic } = req.query;
+	const { sort_by, order, topic} = req.query;
 
 	try {
 		if (topic) {
