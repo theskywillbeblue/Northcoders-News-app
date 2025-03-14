@@ -1,4 +1,5 @@
 const db = require('../db/connection');
+const { checkExists } = require('../db/seeds/utils');
 
 exports.showArticles = async (
 	sort_by = 'created_at',
@@ -47,7 +48,7 @@ exports.showArticles = async (
 	articleQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
 
 	const { rows } = await db.query(articleQuery, queryValues);
-	if (rows.length === 0) {
+	if (rows.length === 0 && (await !checkExists('topics', 'slug', topic))) {
 		return Promise.reject({ status: 404, msg: 'no articles found' });
 	}
 	return rows;
@@ -74,14 +75,14 @@ exports.showArticleById = async (article_id) => {
 };
 
 exports.showCommentsByArticleId = async (artId) => {
-	const {rows} = await db.query(
-			`SELECT *
+	const { rows } = await db.query(
+		`SELECT *
             FROM comments
             WHERE article_id = $1
             ORDER BY created_at DESC`,
-			[artId]
-		)
-			return rows;
+		[artId]
+	);
+	return rows;
 };
 
 exports.updateArticle = async (artId, voteChange) => {
@@ -91,6 +92,41 @@ exports.updateArticle = async (artId, voteChange) => {
             WHERE article_id = $2
             RETURNING *`,
 		[voteChange, artId]
+	);
+	return rows[0];
+};
+
+exports.createArticle = async (article) => {
+	const { author, title, body, topic, article_img_url } = article;
+
+	const { rows } = await db.query(
+		`WITH inserted_article AS (
+		INSERT INTO articles
+		  (author, title, body, topic, article_img_url, created_at) 
+		VALUES 
+		  ($1, $2, $3, $4, COALESCE($5, 'https://your-default-image-url.com/default.jpg'), CURRENT_TIMESTAMP) 
+		RETURNING *
+	  )
+	  SELECT 
+		inserted_article.*,
+		users.name AS author_name, 
+		users.avatar_url AS author_avatar,
+		COUNT(comments.comment_id)::INT AS comment_count
+	  FROM inserted_article
+	  JOIN users ON inserted_article.author = users.username
+	  LEFT JOIN comments ON inserted_article.article_id = comments.article_id
+	  GROUP BY inserted_article.article_id,
+        inserted_article.author,
+        inserted_article.title,
+        inserted_article.body,
+        inserted_article.topic,
+        inserted_article.article_img_url,
+        inserted_article.created_at,
+        inserted_article.votes,
+        users.name,
+        users.avatar_url;;
+	`,
+		[author, title, body, topic, article_img_url]
 	);
 	return rows[0];
 };

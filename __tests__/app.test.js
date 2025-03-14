@@ -259,7 +259,7 @@ describe('PATCH /api/articles/:article_id', () => {
 			.send({ inc_votes: 10 })
 			.expect(200)
 			.then(({ body }) => {
-        const article = body.article
+				const article = body.article;
 				expect(article).toEqual(
 					expect.objectContaining({
 						author: expect.any(String),
@@ -280,7 +280,7 @@ describe('PATCH /api/articles/:article_id', () => {
 			.send({ inc_votes: -10 })
 			.expect(200)
 			.then(({ body }) => {
-        const article = body.article
+				const article = body.article;
 				expect(article.votes).toBe(-10);
 				expect(article.article_id).toBe(3);
 			});
@@ -470,11 +470,18 @@ describe('GET /api/articles/(topic query)', () => {
 			.get('/api/articles/?topic=cheese')
 			.expect(404)
 			.then(({ body }) => {
-				expect(body.msg).toBe('no articles found');
+				expect(body.msg).toBe('slug not found in database');
+			});
+	});
+	test('200: Responds with an empty array if NO articles are found for a GENUINE topic', () => {
+		return request(app)
+			.get('/api/articles/?topic=paper')
+			.expect(200)
+			.then(({ body }) => {
+				expect(body.articles).toEqual([]);
 			});
 	});
 });
-
 
 // Q12
 describe('GET /api/articles/:article_id (comment_count)', () => {
@@ -526,12 +533,13 @@ describe('GET /api/users/:username', () => {
 				const user = body.user;
 				expect(user).toMatchObject({
 					username: 'lurker',
-          name: "do_nothing",
-          avatar_url: 'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png'
+					name: 'do_nothing',
+					avatar_url:
+						'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
 				});
 			});
 	});
-  test('404: Responds with an error message if the user does not exist', () => {
+	test('404: Responds with an error message if the user does not exist', () => {
 		return request(app)
 			.get('/api/users/NOT-A-USER')
 			.expect(404)
@@ -539,7 +547,6 @@ describe('GET /api/users/:username', () => {
 				expect(body.msg).toBe('user not found');
 			});
 	});
-
 });
 
 // Q17
@@ -550,7 +557,7 @@ describe('PATCH /api/comments/:comment_id', () => {
 			.send({ inc_votes: 10 })
 			.expect(200)
 			.then(({ body }) => {
-        const comment = body.comment;
+				const comment = body.comment;
 				expect(comment).toEqual(
 					expect.objectContaining({
 						comment_id: 2,
@@ -569,7 +576,7 @@ describe('PATCH /api/comments/:comment_id', () => {
 			.send({ inc_votes: -10 })
 			.expect(200)
 			.then(({ body }) => {
-        const comment = body.comment 
+				const comment = body.comment;
 				expect(comment.votes).toBe(4);
 				expect(comment.comment_id).toBe(2);
 			});
@@ -599,6 +606,92 @@ describe('PATCH /api/comments/:comment_id', () => {
 			.expect(400)
 			.then(({ body }) => {
 				expect(body.msg).toBe('Missing required field: inc_votes');
+			});
+	});
+});
+
+// Q18
+describe('POST /api/articles', () => {
+	test('201: Responds with the posted article, including: comment count', () => {
+		return request(app)
+			.post('/api/articles')
+			.send({
+				author: 'rogersop',
+				title: 'Premier League',
+				body: 'Liverpool are definitely going to win the league!',
+				topic: 'cats',
+				article_img_url:
+					'https://cdn3.pixelcut.app/7/20/uncrop_hero_bdf08a8ca6.jpg',
+			})
+			.expect(201)
+			.then(({ body }) => {
+				const { newArticle } = body;
+				expect(newArticle).toEqual(
+					expect.objectContaining({
+						author: 'rogersop',
+						created_at: expect.any(String),
+						article_id: expect.any(Number),
+						votes: 0,
+						topic: expect.any(String),
+						title: 'Premier League',
+						body: 'Liverpool are definitely going to win the league!',
+						comment_count: expect.any(Number),
+						article_img_url:
+							'https://cdn3.pixelcut.app/7/20/uncrop_hero_bdf08a8ca6.jpg',
+					})
+				);
+			});
+	});
+	test('201: The posted article gets a default article_img_url if none is provided', () => {
+		return request(app)
+			.post('/api/articles')
+			.send({
+				author: 'rogersop',
+				title: 'Premier League',
+				body: 'Liverpool are definitely going to win the league!',
+				topic: 'cats',
+			})
+			.expect(201)
+			.then(({ body }) => {
+				const { newArticle } = body;
+				expect(newArticle.article_img_url).toBe(
+					'https://your-default-image-url.com/default.jpg'
+				);
+			});
+	});
+	test('404: Responds with an error if an invalid topic is used in the request object', () => {
+		return request(app)
+			.post('/api/articles')
+			.send({
+				topic: 'lions',
+				author: 'lurker',
+			})
+			.expect(404)
+			.then(({ body }) => {
+				expect(body.msg).toBe('slug not found in database');
+			});
+	});
+	test('404: Responds with an error if an invalid username is used in the request object', () => {
+		return request(app)
+			.post('/api/articles')
+			.send({
+				topic: 'paper',
+				author: 'joseph1998',
+			})
+			.expect(404)
+			.then(({ body }) => {
+				expect(body.msg).toBe('username not found in database');
+			});
+	});
+	test('404: Responds with an error required fields are blank', () => {
+		return request(app)
+			.post('/api/articles')
+			.send({
+				author: 'rogersop',
+			})
+			.expect(400)
+			.then(({ body }) => {
+				expect(body.msg).toBe('Missing required field: topic');
 			});
 	});
 });
