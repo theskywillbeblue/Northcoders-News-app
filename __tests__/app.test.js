@@ -683,7 +683,7 @@ describe('POST /api/articles', () => {
 				expect(body.msg).toBe('username not found in database');
 			});
 	});
-	test('404: Responds with an error required fields are blank', () => {
+	test('400: Responds with an error when required fields are left blank', () => {
 		return request(app)
 			.post('/api/articles')
 			.send({
