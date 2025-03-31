@@ -2,9 +2,12 @@ const express = require("express");
 const {handleIncorrectEndpoints, handleServerErrors, handleTypeInputErrors, handleMissingInputs, alreadyExistsErrors} = require("./error-handlers")
 const app = express()
 app.use(express.json());
+const cors = require ('cors')
 
 
 // routers
+
+app.use(cors())
 
 const apiRouter = require("./routes/api-router")
 const topicsRouter = require("./routes/topics-router")
